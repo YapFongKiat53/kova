@@ -16,7 +16,8 @@ export function Nav() {
   return (
     <header
       className={
-        "fixed top-0 inset-x-0 z-50 transition-all duration-500 " +
+        // 在这里将 fixed 替换为了 sticky
+        "sticky top-0 inset-x-0 z-50 transition-all duration-500 " +
         (scrolled
           ? "bg-[var(--color-cream)]/85 backdrop-blur-md border-b border-[var(--color-line-soft)]"
           : "bg-transparent border-b border-transparent")
