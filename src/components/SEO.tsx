@@ -2,7 +2,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 // 提示：检查一下你的文件名是 seoConfig.ts 还是 seoconfig.ts，通常建议保持驼峰命名一致
-import { defaultSEO, seoConfig } from '../config/seoconfig';
+import { defaultSEO, seoConfig } from '../config/seoConfig';
 
 interface SEOProps {
   pageKey?: string; // 对应 seoConfig 里的 key
