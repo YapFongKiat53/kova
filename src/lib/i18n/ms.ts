@@ -378,7 +378,7 @@ export const ms: Dict = {
     hours: "Waktu",
     service: "Khidmat",
     studioAddr: "No. 14, Jalan Bayu 4\nPetaling Jaya, Malaysia",
-    directInfo: "hello@kovasunshade.com\n+60 12 345 6789",
+    directInfo: "info@kovasunshade.com\n+60 12 345 6789",
     hoursInfo: "Isnin — Jumaat, 9 hingga 6\nSabtu dengan janji temu",
     serviceInfo: "Lembah Klang & sekitarnya\nProfesional & kediaman",
     nameLabel: "Nama anda",
@@ -425,7 +425,7 @@ export const ms: Dict = {
         items: [
           ["Isn — Jum, 9 hingga 6", "#contact"],
           ["Sab dengan janji", "#contact"],
-          ["hello@kovasunshade.com", "mailto:hello@kovasunshade.com"],
+          ["info@kovasunshade.com", "mailto:info@kovasunshade.com"],
         ],
       },
     ],

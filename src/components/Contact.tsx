@@ -8,6 +8,10 @@ export function Contact() {
   const [sent, setSent] = useState(false);
   const [prefilled, setPrefilled] = useState(false);
   const [lastSummary, setLastSummary] = useState<string | null>(null);
+
+  // 新增：防抖/加载状态
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const messageRef = useRef<HTMLTextAreaElement | null>(null);
   const interestRef = useRef<HTMLFieldSetElement | null>(null);
 
@@ -34,6 +38,83 @@ export function Contact() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [submissionToken]);
 
+  // 新增：处理表单提交的函数
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // 1. 前端冷却期检查 (限制 1 分钟内只能发一次)
+    const lastSubmitTime = localStorage.getItem("lastContactSubmit");
+    if (lastSubmitTime && Date.now() - parseInt(lastSubmitTime) < 60000) {
+      alert("您发送得太频繁了，请等待 1 分钟后再试。");
+      return;
+    }
+
+    setIsSubmitting(true);
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+
+    // 2. 蜜罐检查：如果机器人填了这个隐藏字段，直接假装成功并拦截
+    if (data.website) {
+      setSent(true);
+      setIsSubmitting(false);
+      return;
+    }
+
+    // 3. 抓取客户端 IP
+    let userIp = "unknown";
+    try {
+      // 替换为更稳定的 jsonip 服务
+      const ipResponse = await fetch("https://jsonip.com/");
+      const ipData = await ipResponse.json();
+      userIp = ipData.ip;
+    } catch (err) {
+      console.log("无法获取 IP，继续提交", err);
+    }
+
+    // 4. 获取多选的 interest 字段
+    const interests = formData.getAll("interest");
+
+    // 5. 组装 Payload
+    const payload = {
+      name: data.name,
+      phone: data.phone,
+      email: data.email,
+      location: data.location,
+      message: data.message,
+      interest: interests.join(", "), // 将数组转成逗号分隔的字符串
+      clientIp: userIp,
+      website: data.website,
+    };
+
+    try {
+      // ⚠️⚠️⚠️ 替换为你自己的 Apps Script 部署的 URL
+      const API_URL = "https://script.google.com/macros/s/AKfycbxwVygErRfgnqA2GG1S8CIPcUnxW_BED_cqWlp9Gav56lXbKAx6DMZkolQTaAD7pJgk7A/exec"
+      const res = await fetch(API_URL, {
+        method: "POST",
+        // 使用 text/plain 绕过 CORS 预检
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await res.json();
+
+      // 如果后端触发了限流或报错
+      if (!result.ok) {
+        alert(result.error);
+        return;
+      }
+
+      // 6. 发送成功，记录时间戳并显示成功 UI
+      localStorage.setItem("lastContactSubmit", Date.now().toString());
+      setSent(true);
+    } catch (error) {
+      console.error("提交失败:", error);
+      alert("发送失败，请稍后再试。");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section
       id="contact"
@@ -42,16 +123,8 @@ export function Contact() {
       <div className="absolute inset-0 grain opacity-[0.12] pointer-events-none" />
 
       <div className="relative max-w-[1240px] mx-auto px-6 lg:px-10">
-        {/*
-          Mobile order (single column):
-            1. Heading  → 2. Form  → 3. Studio info
-          Desktop order (2 cols, explicit row/col placement):
-            Left col, row 1: Heading
-            Left col, row 2: Studio info
-            Right col, spans rows 1–2: Form
-        */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-y-10 lg:gap-x-16 lg:items-start">
-          {/* HEADING — mobile row 1 / desktop col 1 row 1 */}
+          {/* HEADING */}
           <div className="lg:col-span-6 lg:row-start-1 lg:col-start-1">
             <p className="eyebrow !text-[var(--color-sand)]">{t.contact.eyebrow}</p>
             <h2 className="mt-4 font-serif text-[2.2rem] sm:text-[2.6rem] lg:text-[3.2rem] leading-[1.04] tracking-tightest text-[var(--color-cream)]">
@@ -70,7 +143,7 @@ export function Contact() {
             </div>
           </div>
 
-          {/* FORM — mobile row 2 / desktop col 2 rows 1–2 */}
+          {/* FORM */}
           <div className="row-start-2 lg:row-start-1 lg:row-span-2 lg:col-start-7 lg:col-span-6 lg:pl-10 lg:border-l lg:border-[var(--color-cream)]/15">
             {sent ? (
               <div className="rounded-md border border-[var(--color-cream)]/20 p-8 bg-[var(--color-cream)]/5">
@@ -80,12 +153,13 @@ export function Contact() {
                 </p>
               </div>
             ) : (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setSent(true);
-                }}
-              >
+              <form onSubmit={handleSubmit}>
+
+                {/* 防垃圾邮件的隐藏蜜罐字段 */}
+                <div style={{ display: 'none' }} aria-hidden="true">
+                  <input type="text" name="website" tabIndex={-1} autoComplete="off" />
+                </div>
+
                 {/* Configuration summary chip */}
                 {prefilled && lastSummary && (
                   <div className="mb-5 flex items-start gap-3 rounded-md border border-[var(--color-clay-light)]/40 bg-[var(--color-clay)]/10 p-3.5">
@@ -179,9 +253,10 @@ export function Contact() {
                 <div className="mt-6">
                   <button
                     type="submit"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:py-3 rounded-full bg-[var(--color-clay)] text-[var(--color-cream)] font-medium text-[0.95rem] sm:text-[0.92rem] hover:bg-[var(--color-clay-deep)] active:bg-[var(--color-clay-deep)] transition-colors"
+                    disabled={isSubmitting}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:py-3 rounded-full bg-[var(--color-clay)] text-[var(--color-cream)] font-medium text-[0.95rem] sm:text-[0.92rem] hover:bg-[var(--color-clay-deep)] active:bg-[var(--color-clay-deep)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    {t.contact.submit}
+                    {isSubmitting ? "Sending..." : t.contact.submit}
                     <span aria-hidden>→</span>
                   </button>
                 </div>
