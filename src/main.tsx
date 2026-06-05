@@ -1,10 +1,12 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import App from "./App";
-import "./index.css";
+// src/main.tsx
+import { ViteReactSSG } from 'vite-react-ssg';
+import App from './App';
+import './index.css';
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+// 确保这里没有任何 react-dom/client 的引用
+const routes = [
+  { path: '/', element: <App lang="en" /> },
+  { path: '/ms', element: <App lang="ms" /> }
+];
+
+export const createRoot = ViteReactSSG({ routes });

@@ -11,14 +11,24 @@ const LangContext = createContext<{
   setLang: (l: Lang) => void;
 }>({ lang: "en", setLang: () => {} });
 
-export function LangProvider({ children }: { children: ReactNode }) {
-  // Default to English on first paint so SEO crawlers always see English copy.
-  const [lang, setLangState] = useState<Lang>("en");
+// ✅ 1. 更新 Props 接口，添加 initialLang
+export function LangProvider({ 
+  children, 
+  initialLang 
+}: { 
+  children: ReactNode; 
+  initialLang?: Lang; // SSG 在打包时会传入这个参数
+}) {
+  // ✅ 2. 优先使用 initialLang (为了 SEO 渲染)，其次读取 localStorage
+  const [lang, setLangState] = useState<Lang>(initialLang || "en");
 
   useEffect(() => {
-    const saved = localStorage.getItem("kova-lang");
-    if (saved === "en" || saved === "ms") setLangState(saved);
-  }, []);
+    // 只有在浏览器环境才去读取 localStorage
+    if (!initialLang) {
+      const saved = localStorage.getItem("kova-lang");
+      if (saved === "en" || saved === "ms") setLangState(saved);
+    }
+  }, [initialLang]);
 
   useEffect(() => {
     document.documentElement.lang = dictionaries[lang].meta.htmlLang;
@@ -34,7 +44,9 @@ export function LangProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <LangContext.Provider value={{ lang, setLang }}>{children}</LangContext.Provider>
+    <LangContext.Provider value={{ lang, setLang }}>
+      {children}
+    </LangContext.Provider>
   );
 }
 

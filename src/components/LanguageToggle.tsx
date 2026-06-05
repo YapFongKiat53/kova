@@ -1,10 +1,21 @@
+// src/components/LanguageToggle.tsx
 import { useLang, useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export function LanguageToggle({ tone = "light" }: { tone?: "light" | "dark" }) {
-  const { lang, setLang } = useLang();
+  const { lang } = useLang(); // 我们只需要读取当前语言，不需要 setLang
   const t = useT();
   const isDark = tone === "dark";
+
+  // ✅ 新增：跳转逻辑
+  const handleToggle = (code: 'en' | 'ms') => {
+    // 如果已经在当前语言，就不做任何操作
+    if (lang === code) return;
+    
+    // 跳转到对应的物理路径
+    // 英文去根目录 /，马来文去 /ms
+    window.location.href = code === 'en' ? '/' : '/ms';
+  };
 
   return (
     <div
@@ -32,7 +43,8 @@ export function LanguageToggle({ tone = "light" }: { tone?: "light" | "dark" }) 
           <button
             key={code}
             type="button"
-            onClick={() => setLang(code)}
+            // ✅ 修改：点击时调用 handleToggle 进行跳转
+            onClick={() => handleToggle(code)}
             aria-pressed={active}
             className={cn(
               "relative z-10 px-3 py-1 rounded-full transition-colors tracking-wide",
