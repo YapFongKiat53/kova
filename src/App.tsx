@@ -1,3 +1,5 @@
+import { lazy, Suspense } from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { LangProvider, useT } from "@/lib/i18n";
 import { ConfiguratorProvider } from "@/lib/configurator/context";
 import { PromoBar } from "./components/PromoBar";
@@ -20,13 +22,14 @@ import { StickyQuote } from "./components/StickyQuote";
 import { RollerBlind } from "./components/visuals/RollerBlind";
 import { VenetianBlind } from "./components/visuals/VenetianBlind";
 import { VertiSheer } from "./components/visuals/VertiSheer";
-import { SEO } from "./components/SEO";
+
 function Site() {
   const t = useT();
   return (
     <div className="min-h-screen bg-[var(--color-cream)]">
       <PromoBar />
       <Nav />
+
       <main>
         <Hero />
         <FactoryDirect />
@@ -34,16 +37,43 @@ function Site() {
         <Collection />
         <Configurator />
         <Marquee />
-        <ProductSpotlight id="roller" tone="cream" {...t.products.roller} Detail={RollerBlind} detailSrc="/showcase/greige-roller.jpg" />
-        <ProductSpotlight id="venetian" tone="paper" {...t.products.venetian} Detail={VenetianBlind} detailSrc="/showcase/white-venetian.jpg" reverse />
+
+        <ProductSpotlight
+          id="roller"
+          tone="cream"
+          {...t.products.roller}
+          Detail={RollerBlind}
+          detailSrc="/showcase/greige-roller.jpg"
+        />
+
+        <ProductSpotlight
+          id="venetian"
+          tone="paper"
+          {...t.products.venetian}
+          Detail={VenetianBlind}
+          detailSrc="/showcase/white-venetian.jpg"
+          reverse
+        />
+
         <VenetianSystem />
-        <ProductSpotlight id="vertisheer" tone="ink" {...t.products.vertisheer} Detail={VertiSheer} detailSrc="/showcase/pivot-silver-vertisheer.jpg" />
+
+        <ProductSpotlight
+          id="vertisheer"
+          tone="ink"
+          {...t.products.vertisheer}
+          Detail={VertiSheer}
+          detailSrc="/showcase/pivot-silver-vertisheer.jpg"
+        />
+
         <Compare />
         <Fabrics />
         <Spaces />
-        <div id="process"><Process /></div>
+        <div id="process">
+          <Process />
+        </div>
         <Contact />
       </main>
+
       <Footer />
       <StickyQuote />
     </div>
@@ -53,8 +83,7 @@ function Site() {
 // ✅ 明确接收 lang 参数，并传给 Provider 和 SEO 组件
 export default function App({ lang = 'en' }: { lang?: 'en' | 'ms' }) {
   return (
-    <LangProvider initialLang={lang}>
-      <SEO lang={lang} pageKey="home" />
+    <LangProvider>
       <ConfiguratorProvider>
         <Site />
       </ConfiguratorProvider>

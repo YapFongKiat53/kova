@@ -1,6 +1,5 @@
 export const en = {
   meta: { htmlLang: "en", langLabel: "English" },
-
   nav: {
     links: [
       { href: "#collection", label: "Collection" },
@@ -558,9 +557,9 @@ export const en = {
 type DeepWritable<T> = T extends readonly (infer U)[]
   ? DeepWritable<U>[]
   : T extends object
-  ? { -readonly [K in keyof T]: DeepWritable<T[K]> }
-  : T extends string
-  ? string
-  : T;
+    ? { -readonly [K in keyof T]: DeepWritable<T[K]> }
+    : T extends string
+      ? string
+      : T;
 
 export type Dict = DeepWritable<typeof en>;

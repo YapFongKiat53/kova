@@ -2,6 +2,7 @@ import type { Dict } from "./en";
 
 export const ms: Dict = {
   meta: { htmlLang: "ms", langLabel: "Bahasa Malaysia" },
+ 
   nav: {
     links: [
       { href: "#collection", label: "Koleksi" },
