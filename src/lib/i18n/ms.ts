@@ -2,7 +2,14 @@ import type { Dict } from "./en";
 
 export const ms: Dict = {
   meta: { htmlLang: "ms", langLabel: "Bahasa Malaysia" },
- 
+  seo: {
+    title:
+      "Kova Sun Shade — Bidai & Langsir Tingkap Malaysia · Bidai Roller, Venetian, VertiSheer",
+    description:
+      "Bidai dan langsir tingkap dibuat ikut ukuran rumah anda. Bidai Roller, Bidai Venetian dan VertiSheer terus dari kilang di Petaling Jaya — sehingga 40% lebih murah dari harga runcit.",
+    keywords:
+      "bidai, langsir, bidai tingkap, langsir tingkap, bidai Malaysia, langsir Malaysia, bidai dan langsir rumah anda, bidai roller, bidai venetian, vertisheer, bidai dibuat ikut ukuran, bidai murah, bidai bermotor, bidai motor, bidai Petaling Jaya, bidai Klang Valley, bidai Selangor, roller blinds Malaysia, venetian blinds Malaysia",
+  },
   nav: {
     links: [
       { href: "#collection", label: "Koleksi" },

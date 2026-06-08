@@ -56,7 +56,8 @@ export function JsonLd() {
       "@id": `${SITE_URL}/#business`,
       name: "Kova Sun Shade",
       alternateName: isMalay ? "Kova — Bidai dan Langsir Tingkap" : undefined,
-      description: t.seo.description,
+      // 修复 1：加上 ?. 并提供默认描述防崩溃
+      description: t.seo?.description || "Premium Window Blinds and Shades", 
       url: SITE_URL,
       email: "info@kovasunshade.com",
       telephone: "+60123456789",
@@ -123,7 +124,8 @@ export function JsonLd() {
           "@type": "Product",
           name: isMalay ? "Bidai Roller" : "Roller Blinds",
           category: "Window Blinds",
-          description: t.products.roller.body[0],
+          // 修复 2：为产品描述加上安全检查 ?.
+          description: t.products?.roller?.body?.[0] || "High quality roller blinds.",
           image: `${SITE_URL}/showcase/greige-roller.webp`,
           brand: { "@type": "Brand", name: "Kova Sun Shade" },
           url: `${SITE_URL}${isMalay ? "/bidai" : "/"}#roller`,
@@ -132,7 +134,7 @@ export function JsonLd() {
           "@type": "Product",
           name: isMalay ? "Bidai Venetian" : "Venetian Blinds",
           category: "Window Blinds",
-          description: t.products.venetian.body[0],
+          description: t.products?.venetian?.body?.[0] || "Elegant venetian blinds.",
           image: `${SITE_URL}/showcase/white-venetian.webp`,
           brand: { "@type": "Brand", name: "Kova Sun Shade" },
           url: `${SITE_URL}${isMalay ? "/bidai" : "/"}#venetian`,
@@ -141,7 +143,7 @@ export function JsonLd() {
           "@type": "Product",
           name: "VertiSheer",
           category: "Vertical Sheer Blinds",
-          description: t.products.vertisheer.body[0],
+          description: t.products?.vertisheer?.body?.[0] || "Modern vertical sheer blinds.",
           image: `${SITE_URL}/showcase/pivot-silver-vertisheer.webp`,
           brand: { "@type": "Brand", name: "Kova Sun Shade" },
           url: `${SITE_URL}${isMalay ? "/bidai" : "/"}#vertisheer`,
@@ -165,7 +167,8 @@ export function JsonLd() {
       const blogUrl = isMalay ? `${SITE_URL}/bidai/jurnal` : `${SITE_URL}/blog`;
       const items: Array<{ "@type": string; position: number; name: string; item: string }> = [
         { "@type": "ListItem", position: 1, name: "Home", item: homeUrl },
-        { "@type": "ListItem", position: 2, name: t.nav.journal, item: blogUrl },
+        // 修复 3：给 nav.journal 加上安全检查
+        { "@type": "ListItem", position: 2, name: t.nav?.journal || "Blog", item: blogUrl },
       ];
       if (onBlogPost) {
         const slug = pathname.split("/").pop() || "";
@@ -185,11 +188,9 @@ export function JsonLd() {
       clearJsonLd("breadcrumbs");
     }
 
-    // --- Single blog post Article (filled in by BlogPost via window
-    //     event so we don't double-fetch — see BlogPost.tsx). -------
+    // --- Single blog post Article -----------------------------------
     if (!onBlogPost) clearJsonLd("article");
   }, [pathname, lang, isMalay, t]);
-
   return null;
 }
 
