@@ -18,11 +18,11 @@ export interface SEOData {
 export const defaultSEO: SEOData = {
   en: {
     title: "Window Blinds & Shade | Window Blind Malaysia | Kova Sun Shade",
-    description: "Transform your outdoor space with Kova Sun Shade. We supply and install quality awnings, zip blinds, and sun shading systems for homes and commercial properties."
+    description: "Transform your outdoor space with Kova Sun Shade. We supply and install quality window blinds like Roller Blinds, Timber Venetian Blinds ,Vertisheer Blinds and sun shading systems for homes and commercial properties."
   },
   ms: {
     title: "Bidai dan Langsir Malaysia | Kova Sun Shade",
-    description: "Tingkatkan keselesaan dan perlindungan ruang anda dengan Kova Sun Shade. Pakar dalam awning, zip blind dan sistem teduhan untuk kediaman serta komersial."
+    description: "Tingkatkan keselesaan dan perlindungan ruang anda dengan Kova Sun Shade. Pakar dari luar , Roller Bidai dan sistem teduhan untuk kediaman serta komersial."
   },
   keywords: "sunshade, blinds, roller blinds, venetian blinds, vertisheer, factory direct blinds, bidai, langsir, awning, zip blind",
   ogImage: "https://kovasunshade.com/images/default-og.jpg", // 保持你的真实图片链接
