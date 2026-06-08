@@ -1,92 +1,52 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { LangProvider, useT } from "@/lib/i18n";
+import { LangProvider } from "@/lib/i18n";
 import { ConfiguratorProvider } from "@/lib/configurator/context";
-import { PromoBar } from "./components/PromoBar";
-import { Nav } from "./components/Nav";
-import { Hero } from "./components/Hero";
-import { FactoryDirect } from "./components/FactoryDirect";
-import { Philosophy } from "./components/Philosophy";
-import { Collection } from "./components/Collection";
-import { Configurator } from "./components/Configurator";
-import { Marquee } from "./components/Marquee";
-import { ProductSpotlight } from "./components/ProductSpotlight";
-import { VenetianSystem } from "./components/VenetianSystem";
-import { Fabrics } from "./components/Fabrics";
-import { Compare } from "./components/Compare";
-import { Spaces } from "./components/Spaces";
-import { Process } from "./components/Process";
-import { Contact } from "./components/Contact";
-import { Footer } from "./components/Footer";
-import { StickyQuote } from "./components/StickyQuote";
-import { RollerBlind } from "./components/visuals/RollerBlind";
-import { VenetianBlind } from "./components/visuals/VenetianBlind";
-import { VertiSheer } from "./components/visuals/VertiSheer";
+import { ScrollManager } from "./components/ScrollManager";
+import { SeoHead } from "./components/SeoHead";
+import { JsonLd } from "./components/JsonLd";
+import { Home } from "./pages/Home";
 
-function Site() {
-  const t = useT();
-  return (
-    <div className="min-h-screen bg-[var(--color-cream)]">
-      <PromoBar />
-      <Nav />
+// Code-split the journal — visitors who only browse the landing never
+// pay the cost of react-markdown + remark-gfm. ~45 KB gz off the home
+// LCP path.
+const Blog = lazy(() => import("./pages/Blog").then((m) => ({ default: m.Blog })));
+const BlogPost = lazy(() =>
+  import("./pages/BlogPost").then((m) => ({ default: m.BlogPost })),
+);
 
-      <main>
-        <Hero />
-        <FactoryDirect />
-        <Philosophy />
-        <Collection />
-        <Configurator />
-        <Marquee />
-
-        <ProductSpotlight
-          id="roller"
-          tone="cream"
-          {...t.products.roller}
-          Detail={RollerBlind}
-          detailSrc="/showcase/greige-roller.jpg"
-        />
-
-        <ProductSpotlight
-          id="venetian"
-          tone="paper"
-          {...t.products.venetian}
-          Detail={VenetianBlind}
-          detailSrc="/showcase/white-venetian.jpg"
-          reverse
-        />
-
-        <VenetianSystem />
-
-        <ProductSpotlight
-          id="vertisheer"
-          tone="ink"
-          {...t.products.vertisheer}
-          Detail={VertiSheer}
-          detailSrc="/showcase/pivot-silver-vertisheer.jpg"
-        />
-
-        <Compare />
-        <Fabrics />
-        <Spaces />
-        <div id="process">
-          <Process />
-        </div>
-        <Contact />
-      </main>
-
-      <Footer />
-      <StickyQuote />
-    </div>
-  );
+function PageFallback() {
+  // Cream wash that matches the brand background so the swap is silent.
+  return <div className="min-h-screen bg-[var(--color-cream)]" />;
 }
 
-// ✅ 明确接收 lang 参数，并传给 Provider 和 SEO 组件
-export default function App({ lang = 'en' }: { lang?: 'en' | 'ms' }) {
+export default function App() {
   return (
-    <LangProvider>
-      <ConfiguratorProvider>
-        <Site />
-      </ConfiguratorProvider>
-    </LangProvider>
+    // Router is the outermost wrapper so LangProvider can derive the
+    // active language from the URL (`/` → EN, `/bidai` → BM) and the
+    // SeoHead can emit a per-route canonical + hreflang.
+    <BrowserRouter>
+      <LangProvider>
+        <SeoHead />
+        <JsonLd />
+        <ConfiguratorProvider>
+          <ScrollManager />
+          <Suspense fallback={<PageFallback />}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              {/* Malay landing — Google-friendly URL for the BM keyword set. */}
+              <Route path="/bidai" element={<Home />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPost />} />
+              {/* BM blog counterparts — same components, language follows URL. */}
+              <Route path="/bidai/jurnal" element={<Blog />} />
+              <Route path="/bidai/jurnal/:slug" element={<BlogPost />} />
+              {/* Unknown path → land on home rather than a hard 404. */}
+              <Route path="*" element={<Home />} />
+            </Routes>
+          </Suspense>
+        </ConfiguratorProvider>
+      </LangProvider>
+    </BrowserRouter>
   );
 }

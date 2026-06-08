@@ -12,18 +12,6 @@ const LangContext = createContext<{
   setLang: (l: Lang) => void;
 }>({ lang: "en", setLang: () => {} });
 
-<<<<<<< HEAD
-// ✅ 1. 更新 Props 接口，添加 initialLang
-export function LangProvider({ 
-  children, 
-  initialLang 
-}: { 
-  children: ReactNode; 
-  initialLang?: Lang; // SSG 在打包时会传入这个参数
-}) {
-  // ✅ 2. 优先使用 initialLang (为了 SEO 渲染)，其次读取 localStorage
-  const [lang, setLangState] = useState<Lang>(initialLang || "en");
-=======
 /**
  * Language is URL-derived where possible so each language has a stable,
  * crawlable canonical:
@@ -42,25 +30,15 @@ export function LangProvider({
 export function LangProvider({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
->>>>>>> upstream/main
 
   const isMalayUrl = pathname === "/bidai" || pathname.startsWith("/bidai/");
 
   // Stored preference — used as the fallback on language-neutral routes.
   const [storedLang, setStoredLang] = useState<Lang>("en");
   useEffect(() => {
-<<<<<<< HEAD
-    // 只有在浏览器环境才去读取 localStorage
-    if (!initialLang) {
-      const saved = localStorage.getItem("kova-lang");
-      if (saved === "en" || saved === "ms") setLangState(saved);
-    }
-  }, [initialLang]);
-=======
     const saved = localStorage.getItem("kova-lang");
     if (saved === "en" || saved === "ms") setStoredLang(saved);
   }, []);
->>>>>>> upstream/main
 
   const lang: Lang = isMalayUrl ? "ms" : pathname === "/" ? "en" : storedLang;
 
