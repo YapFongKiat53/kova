@@ -1,17 +1,26 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useT } from "@/lib/i18n";
+import { useRoutes } from "@/lib/routes";
 import { LanguageToggle } from "./LanguageToggle";
 
 export function Nav() {
   const t = useT();
   const { pathname } = useLocation();
-  // Both / and /bidai render <Home/>, so they're both "on home" for
-  // anchor purposes — section IDs exist on the current page.
-  const onHome = pathname === "/" || pathname.startsWith("/bidai");
-  const homePath = pathname.startsWith("/bidai") ? "/bidai" : "/";
+  const r = useRoutes();
+  const homePath = r.home;
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  /** Brochure menu items, in display order. */
+  const menu: Array<{ href: string; label: string }> = [
+    { href: r.roller, label: t.products.roller.name },
+    { href: r.venetian, label: t.products.venetian.name },
+    { href: r.vertisheer, label: "VertiSheer" },
+    { href: r.process, label: t.process.eyebrow },
+    { href: r.configurator, label: t.configurator.eyebrow },
+  ];
+  const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -35,13 +44,7 @@ export function Nav() {
     };
   }, [mobileOpen]);
 
-  /**
-   * On a home route (/ or /bidai), hash links (#contact) scroll natively
-   * within the current page. Elsewhere, route to the language-matched
-   * home with the hash, and let ScrollManager scroll once Home mounts.
-   */
-  const hashHref = (hash: string) => (onHome ? hash : `${homePath}${hash}`);
-  const journalHref = pathname.startsWith("/bidai") ? "/bidai/jurnal" : "/blog";
+  const journalHref = r.journal;
   const onJournalRoute =
     pathname.startsWith("/blog") || pathname.startsWith("/bidai/jurnal");
 
@@ -91,39 +94,39 @@ export function Nav() {
           </span>
         </Link>
 
-        {/* --- Desktop nav (lg+) --- */}
-        <nav className="hidden lg:flex items-center gap-7 ml-auto mr-6">
-          {t.nav.links.map((l) => (
+          {/* --- Desktop nav (lg+) --- */}
+          <nav className="hidden lg:flex items-center gap-7 ml-auto mr-6">
+            {t.nav.links.map((l) => (
+              <Link
+                key={l.href}
+                to={hashHref(l.href)}
+                className="text-[0.875rem] text-[var(--color-ink-soft)] hover:text-[var(--color-clay)] transition-colors whitespace-nowrap"
+              >
+                {l.label}
+              </Link>
+            ))}
             <Link
-              key={l.href}
-              to={hashHref(l.href)}
-              className="text-[0.875rem] text-[var(--color-ink-soft)] hover:text-[var(--color-clay)] transition-colors whitespace-nowrap"
+              to={journalHref}
+              className={
+                "text-[0.875rem] transition-colors whitespace-nowrap " +
+                (onJournalRoute
+                  ? "text-[var(--color-clay)]"
+                  : "text-[var(--color-ink-soft)] hover:text-[var(--color-clay)]")
+              }
             >
-              {l.label}
+              {t.nav.journal}
             </Link>
-          ))}
-          <Link
-            to={journalHref}
-            className={
-              "text-[0.875rem] transition-colors whitespace-nowrap " +
-              (onJournalRoute
-                ? "text-[var(--color-clay)]"
-                : "text-[var(--color-ink-soft)] hover:text-[var(--color-clay)]")
-            }
-          >
-            {t.nav.journal}
-          </Link>
-        </nav>
+          </nav>
 
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <LanguageToggle />
-          <Link
-            to={hashHref("#contact")}
-            className="hidden md:inline-flex items-center gap-1.5 text-[0.875rem] font-medium px-4 py-2 rounded-full border border-[var(--color-ink)] text-[var(--color-ink)] hover:bg-[var(--color-ink)] hover:text-[var(--color-cream)] transition-colors whitespace-nowrap"
-          >
-            {t.nav.quote}
-            <span aria-hidden>→</span>
-          </Link>
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <LanguageToggle />
+            <Link
+              to={hashHref("#contact")}
+              className="hidden md:inline-flex items-center gap-1.5 text-[0.875rem] font-medium px-4 py-2 rounded-full border border-[var(--color-ink)] text-[var(--color-ink)] hover:bg-[var(--color-ink)] hover:text-[var(--color-cream)] transition-colors whitespace-nowrap"
+            >
+              {t.nav.quote}
+              <span aria-hidden>→</span>
+            </Link>
 
           {/* --- Mobile hamburger (< lg) --- */}
           <button
@@ -161,48 +164,49 @@ export function Nav() {
         </div>
       </div>
 
-      {/* --- Mobile drawer (< lg) --- */}
-      <div
-        id="mobile-menu"
-        className={
-          "lg:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-out " +
-          (mobileOpen ? "max-h-[100vh] opacity-100" : "max-h-0 opacity-0")
-        }
-      >
-        <nav className="px-6 sm:px-8 py-5 flex flex-col gap-1 border-t border-[var(--color-line-soft)] bg-[var(--color-cream)]/98 backdrop-blur-md">
-          {t.nav.links.map((l) => (
+        {/* --- Mobile drawer (< lg) --- */}
+        <div
+          id="mobile-menu"
+          className={
+            "lg:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-out " +
+            (mobileOpen ? "max-h-[100vh] opacity-100" : "max-h-0 opacity-0")
+          }
+        >
+          <nav className="px-6 sm:px-8 py-5 flex flex-col gap-1 border-t border-[var(--color-line-soft)] bg-[var(--color-cream)]/98 backdrop-blur-md">
+            {t.nav.links.map((l) => (
+              <Link
+                key={l.href}
+                to={hashHref(l.href)}
+                onClick={() => setMobileOpen(false)}
+                className="py-3 text-[1.05rem] font-serif text-[var(--color-ink)] border-b border-[var(--color-line-soft)] last:border-b-0 hover:text-[var(--color-clay-deep)] transition-colors"
+              >
+                {l.label}
+              </Link>
+            ))}
             <Link
-              key={l.href}
-              to={hashHref(l.href)}
+              to={journalHref}
               onClick={() => setMobileOpen(false)}
-              className="py-3 text-[1.05rem] font-serif text-[var(--color-ink)] border-b border-[var(--color-line-soft)] last:border-b-0 hover:text-[var(--color-clay-deep)] transition-colors"
+              className={
+                "py-3 text-[1.05rem] font-serif border-b border-[var(--color-line-soft)] transition-colors " +
+                (onJournalRoute
+                  ? "text-[var(--color-clay-deep)]"
+                  : "text-[var(--color-ink)] hover:text-[var(--color-clay-deep)]")
+              }
             >
-              {l.label}
+              {t.nav.journal}
             </Link>
-          ))}
-          <Link
-            to={journalHref}
-            onClick={() => setMobileOpen(false)}
-            className={
-              "py-3 text-[1.05rem] font-serif border-b border-[var(--color-line-soft)] transition-colors " +
-              (onJournalRoute
-                ? "text-[var(--color-clay-deep)]"
-                : "text-[var(--color-ink)] hover:text-[var(--color-clay-deep)]")
-            }
-          >
-            {t.nav.journal}
-          </Link>
 
-          <Link
-            to={hashHref("#contact")}
-            onClick={() => setMobileOpen(false)}
-            className="mt-4 inline-flex items-center justify-center gap-1.5 text-[0.95rem] font-medium px-5 py-3 rounded-full bg-[var(--color-ink)] text-[var(--color-cream)] hover:bg-[var(--color-clay-deep)] transition-colors"
-          >
-            {t.nav.quote}
-            <span aria-hidden>→</span>
-          </Link>
-        </nav>
-      </div>
-    </header>
+            <Link
+              to={hashHref("#contact")}
+              onClick={() => setMobileOpen(false)}
+              className="mt-4 inline-flex items-center justify-center gap-1.5 text-[0.95rem] font-medium px-5 py-3 rounded-full bg-[var(--color-ink)] text-[var(--color-cream)] hover:bg-[var(--color-clay-deep)] transition-colors"
+            >
+              {t.nav.quote}
+              <span aria-hidden>→</span>
+            </Link>
+          </nav>
+        </div>
+      </header>
+    </>
   );
 }
