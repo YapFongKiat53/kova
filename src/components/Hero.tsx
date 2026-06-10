@@ -62,6 +62,16 @@ export function Hero() {
               tone="sand"
               src="/showcase/hero-living.webp"
               alt={t.hero.figureLabel}
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+              // ✅ 修复 Issue 4：提供原生宽高防抖动
+              width={1200}
+              height={578}
+              // ✅ 修复 Issue 6：提供响应式图片，节省移动端流量
+              // 注意：前提是你已经在 public/showcase/ 目录下准备了 hero-living-640.webp 这张小图
+              srcSet="/showcase/hero-living-640.webp 640w, /showcase/hero-living.webp 1200w"
+              sizes="(max-width: 640px) 640px, 1200px"
             >
               <HeroVisual className="w-full h-full" />
             </ImageSlot>

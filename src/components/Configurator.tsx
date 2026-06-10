@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useState, useRef } from "react"; // 新增 useRef
 import { Reveal } from "./Reveal";
 import { useT } from "@/lib/i18n";
 import { useConfigurator } from "@/lib/configurator/context";
@@ -23,22 +23,37 @@ export function Configurator() {
   const opacityLevel = OPACITY_LEVEL[opacity];
   const uid = useId().replace(/[:]/g, "");
   const fabricsForProduct = getFabricsForProduct(product);
+  
+  // ✅ 新增：用于监听配置器是否即将进入视口
+  const sectionRef = useRef<HTMLElement>(null);
+  const [shouldPreload, setShouldPreload] = useState(false);
 
-  /**
-   * Every scene URL in the current product's fabric set, used by the
-   * ScenePhoto component to preload all photos on mount so subsequent
-   * fabric swaps don't trigger a network fetch (and therefore no white
-   * flash while the next image decodes).
-   */
+  useEffect(() => {
+    // 如果不支持 IntersectionObserver 或已经触发预加载，则直接跳过
+    if (!("IntersectionObserver" in window) || shouldPreload) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // 当组件距离视口底部还有 300px 时，判定为即将进入视口
+        if (entry.isIntersecting) {
+          setShouldPreload(true); 
+          observer.disconnect(); // 触发一次后就不再监听
+        }
+      },
+      { rootMargin: "300px" } // 提前 300px 触发
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [shouldPreload]);
+
   const sceneUrls = fabricsForProduct
     .map((f) => f.sceneImage)
     .filter((u): u is string => Boolean(u));
 
-  /**
-   * If the selected fabric has a sceneImage (real room photo), show it as
-   * the live preview. Falls back to the SVG room with the fabric's texture
-   * if the photo is missing or 404s.
-   */
   const [photoFailed, setPhotoFailed] = useState(false);
   useEffect(() => {
     setPhotoFailed(false);
@@ -50,10 +65,10 @@ export function Configurator() {
     document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-
   return (
     <section
       id="configurator"
+      ref={sectionRef} // ✅ 将 ref 绑定到根节点
       className="fluid-section-y-tight border-t border-[var(--color-line)] bg-[var(--color-paper)]"
     >
       <div className="max-w-[1380px] mx-auto px-5 sm:px-6 lg:px-10">
@@ -73,8 +88,6 @@ export function Configurator() {
         </Reveal>
 
         <div className="grid lg:grid-cols-12 gap-3 lg:gap-10 lg:items-start">
-          {/* Preview canvas — always the same SVG room. Only the slats inside
-              change material when the user picks a different fabric. */}
           <Reveal className="lg:col-span-7 lg:sticky lg:top-24">
             <div className="relative rounded-lg border border-[var(--color-line)] overflow-hidden bg-[var(--color-cream-light)]">
               <span className="absolute top-2 left-2 sm:top-4 sm:left-4 z-10 inline-flex items-center gap-1 sm:gap-1.5 bg-[var(--color-cream)]/90 backdrop-blur-sm text-[var(--color-ink)] text-[0.58rem] sm:text-[0.7rem] tracking-widest uppercase px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-[var(--color-line)]">
@@ -85,7 +98,8 @@ export function Configurator() {
                 <ScenePhoto
                   src={fabric.sceneImage}
                   alt={`${t.configurator.products[product]} — ${fabric.name}`}
-                  preload={sceneUrls}
+                  // ✅ 修复：只有当 shouldPreload 为 true 时，才传具体的数组进去
+                  preload={shouldPreload ? sceneUrls : []} 
                   onError={() => setPhotoFailed(true)}
                   className="w-full max-h-[38vh] sm:max-h-[60vh] lg:max-h-[calc(100vh-14rem)] overflow-hidden"
                 />
@@ -109,7 +123,7 @@ export function Configurator() {
             </p>
           </Reveal>
 
-          {/* Controls */}
+          {/* ... 下方的 Controls 代码部分保持完全不变 ... */}
           <Reveal className="lg:col-span-5 flex flex-col gap-3 lg:gap-5" delay={120}>
             {/* Product tabs */}
             <div>
@@ -137,7 +151,7 @@ export function Configurator() {
               </div>
             </div>
 
-            {/* Fabric — either close-up showcase tiles (Venetian) or circle swatches */}
+            {/* Fabric */}
             <div>
               <div className="flex items-baseline justify-between gap-2">
                 <p className="eyebrow text-[0.66rem] sm:text-[0.72rem]">{t.configurator.fabricLabel}</p>
@@ -191,9 +205,9 @@ export function Configurator() {
               </div>
             </div>
 
-            {/* Summary + CTA — compact inline on mobile, full card on desktop */}
+            {/* Summary + CTA */}
             <div className="lg:sticky lg:bottom-4 lg:z-10 lg:mt-2">
-              {/* Mobile: tight inline row */}
+              {/* Mobile */}
               <div className="lg:hidden flex items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-cream-light)] pl-3 pr-1 py-1">
                 <span className="flex-1 min-w-0 truncate font-serif text-[0.86rem] text-[var(--color-ink)]">
                   {t.configurator.products[product]} · {fabric.name}
@@ -209,7 +223,7 @@ export function Configurator() {
                 </button>
               </div>
 
-              {/* Desktop: full card */}
+              {/* Desktop */}
               <div className="hidden lg:block rounded-md border border-[var(--color-line)] bg-[var(--color-cream-light)]/95 backdrop-blur-sm p-5 shadow-[0_8px_24px_-12px_rgba(26,23,20,0.18)]">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">

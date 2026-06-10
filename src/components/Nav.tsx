@@ -1,25 +1,30 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useT } from "@/lib/i18n";
-import { useRoutes } from "@/lib/routes";
 import { LanguageToggle } from "./LanguageToggle";
+// 移除了 useRoutes，因为我们直接用当前 URL 判断更精准
 
 export function Nav() {
   const t = useT();
   const { pathname } = useLocation();
-  const r = useRoutes();
-  const homePath = r.home;
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // 核心修复：通过检查 URL 是否以 /bidai 开头来判断当前是否是马来文页面
+  const isBm = pathname.startsWith("/bidai");
+
+  // 根据语言动态设置 Home 路径
+  const homePath = isBm ? "/bidai" : "/";
+
   /** Brochure menu items, in display order. */
   const menu: Array<{ href: string; label: string }> = [
-    { href: r.roller, label: t.products.roller.name },
-    { href: r.venetian, label: t.products.venetian.name },
-    { href: r.vertisheer, label: "VertiSheer" },
-    { href: r.process, label: t.process.eyebrow },
-    { href: r.configurator, label: t.configurator.eyebrow },
+    { href: isBm ? "/bidai/roller" : "/roller", label: t.products.roller.name },
+    { href: isBm ? "/bidai/venetian" : "/venetian", label: t.products.venetian.name },
+    { href: isBm ? "/bidai/vertisheer" : "/vertisheer", label: "VertiSheer" },
+    { href: isBm ? "/bidai/proses" : "/process", label: t.process.eyebrow },
+    { href: isBm ? "/bidai/reka" : "/configurator", label: t.configurator.eyebrow },
   ];
+  
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
   useEffect(() => {
@@ -44,14 +49,15 @@ export function Nav() {
     };
   }, [mobileOpen]);
 
-  const journalHref = r.journal;
-  const onJournalRoute =
-    pathname.startsWith("/blog") || pathname.startsWith("/bidai/jurnal");
+  // 根据语言动态设置 Journal 和 Contact 路径
+  const journalHref = isBm ? "/bidai/jurnal" : "/blog";
+  const contactHref = isBm ? "/bidai/hubungi" : "/contact";
+  
+  const onJournalRoute = pathname.startsWith("/blog") || pathname.startsWith("/bidai/jurnal");
 
   return (
     <header
       className={
-        // 按照你的注释，将 fixed 替换为 sticky
         "sticky top-0 inset-x-0 z-50 transition-all duration-500 " +
         (scrolled || mobileOpen
           ? "bg-[var(--color-cream)]/95 backdrop-blur-md border-b border-[var(--color-line-soft)]"
@@ -94,39 +100,44 @@ export function Nav() {
           </span>
         </Link>
 
-          {/* --- Desktop nav (lg+) --- */}
-          <nav className="hidden lg:flex items-center gap-7 ml-auto mr-6">
-            {t.nav.links.map((l) => (
-              <Link
-                key={l.href}
-                to={hashHref(l.href)}
-                className="text-[0.875rem] text-[var(--color-ink-soft)] hover:text-[var(--color-clay)] transition-colors whitespace-nowrap"
-              >
-                {l.label}
-              </Link>
-            ))}
+        {/* --- Desktop nav (lg+) --- */}
+        <nav className="hidden lg:flex items-center gap-7 ml-auto mr-6">
+          {menu.map((l) => (
             <Link
-              to={journalHref}
+              key={l.href}
+              to={l.href}
               className={
                 "text-[0.875rem] transition-colors whitespace-nowrap " +
-                (onJournalRoute
+                (isActive(l.href)
                   ? "text-[var(--color-clay)]"
                   : "text-[var(--color-ink-soft)] hover:text-[var(--color-clay)]")
               }
             >
-              {t.nav.journal}
+              {l.label}
             </Link>
-          </nav>
+          ))}
+          <Link
+            to={journalHref}
+            className={
+              "text-[0.875rem] transition-colors whitespace-nowrap " +
+              (onJournalRoute
+                ? "text-[var(--color-clay)]"
+                : "text-[var(--color-ink-soft)] hover:text-[var(--color-clay)]")
+            }
+          >
+            {t.nav.journal}
+          </Link>
+        </nav>
 
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <LanguageToggle />
-            <Link
-              to={hashHref("#contact")}
-              className="hidden md:inline-flex items-center gap-1.5 text-[0.875rem] font-medium px-4 py-2 rounded-full border border-[var(--color-ink)] text-[var(--color-ink)] hover:bg-[var(--color-ink)] hover:text-[var(--color-cream)] transition-colors whitespace-nowrap"
-            >
-              {t.nav.quote}
-              <span aria-hidden>→</span>
-            </Link>
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <LanguageToggle />
+          <Link
+            to={contactHref}
+            className="hidden md:inline-flex items-center gap-1.5 text-[0.875rem] font-medium px-4 py-2 rounded-full border border-[var(--color-ink)] text-[var(--color-ink)] hover:bg-[var(--color-ink)] hover:text-[var(--color-cream)] transition-colors whitespace-nowrap"
+          >
+            {t.nav.quote}
+            <span aria-hidden>→</span>
+          </Link>
 
           {/* --- Mobile hamburger (< lg) --- */}
           <button
@@ -164,49 +175,53 @@ export function Nav() {
         </div>
       </div>
 
-        {/* --- Mobile drawer (< lg) --- */}
-        <div
-          id="mobile-menu"
-          className={
-            "lg:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-out " +
-            (mobileOpen ? "max-h-[100vh] opacity-100" : "max-h-0 opacity-0")
-          }
-        >
-          <nav className="px-6 sm:px-8 py-5 flex flex-col gap-1 border-t border-[var(--color-line-soft)] bg-[var(--color-cream)]/98 backdrop-blur-md">
-            {t.nav.links.map((l) => (
-              <Link
-                key={l.href}
-                to={hashHref(l.href)}
-                onClick={() => setMobileOpen(false)}
-                className="py-3 text-[1.05rem] font-serif text-[var(--color-ink)] border-b border-[var(--color-line-soft)] last:border-b-0 hover:text-[var(--color-clay-deep)] transition-colors"
-              >
-                {l.label}
-              </Link>
-            ))}
+      {/* --- Mobile drawer (< lg) --- */}
+      <div
+        id="mobile-menu"
+        className={
+          "lg:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-out " +
+          (mobileOpen ? "max-h-[100vh] opacity-100" : "max-h-0 opacity-0")
+        }
+      >
+        <nav className="px-6 sm:px-8 py-5 flex flex-col gap-1 border-t border-[var(--color-line-soft)] bg-[var(--color-cream)]/98 backdrop-blur-md">
+          {menu.map((l) => (
             <Link
-              to={journalHref}
+              key={l.href}
+              to={l.href}
               onClick={() => setMobileOpen(false)}
               className={
-                "py-3 text-[1.05rem] font-serif border-b border-[var(--color-line-soft)] transition-colors " +
-                (onJournalRoute
-                  ? "text-[var(--color-clay-deep)]"
+                "py-3 text-[1.05rem] font-serif border-b border-[var(--color-line-soft)] last:border-b-0 transition-colors " + 
+                (isActive(l.href) 
+                  ? "text-[var(--color-clay-deep)]" 
                   : "text-[var(--color-ink)] hover:text-[var(--color-clay-deep)]")
               }
             >
-              {t.nav.journal}
+              {l.label}
             </Link>
+          ))}
+          <Link
+            to={journalHref}
+            onClick={() => setMobileOpen(false)}
+            className={
+              "py-3 text-[1.05rem] font-serif border-b border-[var(--color-line-soft)] transition-colors " +
+              (onJournalRoute
+                ? "text-[var(--color-clay-deep)]"
+                : "text-[var(--color-ink)] hover:text-[var(--color-clay-deep)]")
+            }
+          >
+            {t.nav.journal}
+          </Link>
 
-            <Link
-              to={hashHref("#contact")}
-              onClick={() => setMobileOpen(false)}
-              className="mt-4 inline-flex items-center justify-center gap-1.5 text-[0.95rem] font-medium px-5 py-3 rounded-full bg-[var(--color-ink)] text-[var(--color-cream)] hover:bg-[var(--color-clay-deep)] transition-colors"
-            >
-              {t.nav.quote}
-              <span aria-hidden>→</span>
-            </Link>
-          </nav>
-        </div>
-      </header>
-    </>
+          <Link
+            to={contactHref}
+            onClick={() => setMobileOpen(false)}
+            className="mt-4 inline-flex items-center justify-center gap-1.5 text-[0.95rem] font-medium px-5 py-3 rounded-full bg-[var(--color-ink)] text-[var(--color-cream)] hover:bg-[var(--color-clay-deep)] transition-colors"
+          >
+            {t.nav.quote}
+            <span aria-hidden>→</span>
+          </Link>
+        </nav>
+      </div>
+    </header>
   );
 }
