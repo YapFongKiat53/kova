@@ -1,37 +1,7 @@
-import { useEffect } from "react";
+// src/components/SeoHead.tsx
 import { useLocation } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { useT } from "@/lib/i18n";
-
-/**
- * Keeps the document <title>, social meta tags, canonical URL and the
- * EN ↔ BM hreflang pair in sync with the active route and language.
- *
- * Crawlers see the static index.html on first byte; once the SPA
- * hydrates this hook updates the head to the actually-rendered language
- * and the actually-current path. That matters most for the BM landing
- * (/bidai) where the URL itself carries a target keyword and the
- * canonical/hreflang pair tells Google to index it as the Malay
- * counterpart of `/`.
- */
-function setMeta(selector: string, content: string) {
-  const el = document.head.querySelector(selector) as HTMLMetaElement | null;
-  if (el) el.content = content;
-}
-
-/** Upsert a <link rel="..."> tag, optionally keyed by hreflang. */
-function setLink(rel: string, href: string, hreflang?: string) {
-  const selector = hreflang
-    ? `link[rel="${rel}"][hreflang="${hreflang}"]`
-    : `link[rel="${rel}"]:not([hreflang])`;
-  let el = document.head.querySelector(selector) as HTMLLinkElement | null;
-  if (!el) {
-    el = document.createElement("link");
-    el.rel = rel;
-    if (hreflang) el.hreflang = hreflang;
-    document.head.appendChild(el);
-  }
-  el.href = href;
-}
 
 /** Map a pathname to a logical page key for SEO lookup. */
 function pathnameToPageKey(pathname: string): keyof typeof PAGE_KEY_FALLBACK {
@@ -58,7 +28,6 @@ function pathnameToPageKey(pathname: string): keyof typeof PAGE_KEY_FALLBACK {
   return "home";
 }
 
-/** Sentinel object used only to constrain the keys of pathnameToPageKey. */
 const PAGE_KEY_FALLBACK = {
   home: 1,
   roller: 1,
@@ -74,73 +43,96 @@ export function SeoHead() {
   const t = useT();
   const { pathname } = useLocation();
 
-  // Resolve per-page SEO (title / description / keywords) with the
-  // global block as fallback for fields a page doesn't override.
   const pageKey = pathnameToPageKey(pathname);
   const pageSeo = t.seo.pages[pageKey];
   const title = pageSeo.title;
   const description = pageSeo.description;
   const keywords = pageSeo.keywords ?? t.seo.keywords;
 
-  useEffect(() => {
-    // --- Title + description / OG / Twitter (language-driven) ------
-    document.title = title;
-    setMeta('meta[name="description"]', description);
-    setMeta('meta[name="keywords"]', keywords);
-    setMeta('meta[property="og:title"]', title);
-    setMeta('meta[property="og:description"]', description);
-    setMeta('meta[name="twitter:title"]', title);
-    setMeta('meta[name="twitter:description"]', description);
+  // ⚠️ 在 SSG 渲染期间 (Node.js)，window 对象不存在，所以必须使用硬编码的正式域名
+  const SITE_ORIGIN = "https://kovasunshade.com";
 
-    // --- Canonical + hreflang pair (route-driven) ------------------
-    const origin = window.location.origin;
+  // --- Canonical + hreflang 路径逻辑 ---
+  const PAIRS: Record<string, string> = {
+    "/": "/bidai",
+    "/roller": "/bidai/roller",
+    "/venetian": "/bidai/venetian",
+    "/vertisheer": "/bidai/vertisheer",
+    "/process": "/bidai/proses",
+    "/configurator": "/bidai/reka",
+    "/contact": "/bidai/hubungi",
+    "/blog": "/bidai/jurnal",
+  };
+  const EN_FROM_BM: Record<string, string> = Object.fromEntries(
+    Object.entries(PAIRS).map(([en, ms]) => [ms, en])
+  );
 
-    // Static page pairs — every brochure page has a matching EN/BM URL.
-    const PAIRS: Record<string, string> = {
-      "/": "/bidai",
-      "/roller": "/bidai/roller",
-      "/venetian": "/bidai/venetian",
-      "/vertisheer": "/bidai/vertisheer",
-      "/process": "/bidai/proses",
-      "/configurator": "/bidai/reka",
-      "/contact": "/bidai/hubungi",
-      "/blog": "/bidai/jurnal",
-    };
-    const EN_FROM_BM: Record<string, string> = Object.fromEntries(
-      Object.entries(PAIRS).map(([en, ms]) => [ms, en]),
-    );
+  let enPath = "/";
+  let msPath = "/bidai";
+  let canonicalPath = pathname;
 
-    let enHref = `${origin}/`;
-    let msHref = `${origin}/bidai`;
-    let canonicalPath: string = pathname;
+  if (PAIRS[pathname]) {
+    enPath = pathname;
+    msPath = PAIRS[pathname];
+  } else if (EN_FROM_BM[pathname]) {
+    enPath = EN_FROM_BM[pathname];
+    msPath = pathname;
+  } else if (pathname.startsWith("/blog/")) {
+    const slug = pathname.slice("/blog/".length);
+    enPath = `/blog/${slug}`;
+    msPath = `/bidai/jurnal/${slug}`;
+  } else if (pathname.startsWith("/bidai/jurnal/")) {
+    const slug = pathname.slice("/bidai/jurnal/".length);
+    enPath = `/blog/${slug}`;
+    msPath = `/bidai/jurnal/${slug}`;
+  }
 
-    if (PAIRS[pathname]) {
-      enHref = `${origin}${pathname}`;
-      msHref = `${origin}${PAIRS[pathname]}`;
-    } else if (EN_FROM_BM[pathname]) {
-      enHref = `${origin}${EN_FROM_BM[pathname]}`;
-      msHref = `${origin}${pathname}`;
-    } else if (pathname.startsWith("/blog/")) {
-      const slug = pathname.slice("/blog/".length);
-      enHref = `${origin}/blog/${slug}`;
-      msHref = `${origin}/bidai/jurnal/${slug}`;
-    } else if (pathname.startsWith("/bidai/jurnal/")) {
-      const slug = pathname.slice("/bidai/jurnal/".length);
-      enHref = `${origin}/blog/${slug}`;
-      msHref = `${origin}/bidai/jurnal/${slug}`;
-    } else {
-      // Unknown route → canonical to EN home.
-      canonicalPath = "/";
+  const enHref = `${SITE_ORIGIN}${enPath}`;
+  const msHref = `${SITE_ORIGIN}${msPath}`;
+  const canonicalHref = `${SITE_ORIGIN}${canonicalPath}`;
+
+  // --- JSON-LD Schema ---
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": title,
+    "description": description,
+    "url": canonicalHref,
+    "publisher": { 
+      "@type": "Organization", 
+      "name": "Kova Sun Shade" 
     }
+  };
 
-    setLink("canonical", `${origin}${canonicalPath}`);
-    setLink("alternate", enHref, "en");
-    setLink("alternate", msHref, "ms");
-    setLink("alternate", enHref, "x-default");
+  return (
+    <Helmet>
+      {/* 1. Standard Meta Tags */}
+      <title>{title}</title>
+      <meta name="description" content={description} />
+      <meta name="keywords" content={keywords} />
 
-    // og:locale matches the current page's language.
-    setMeta('meta[property="og:locale"]', t.meta.htmlLang === "ms" ? "ms_MY" : "en_MY");
-  }, [title, description, keywords, pathname, t.meta.htmlLang]);
+      {/* 2. Open Graph / Facebook */}
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:url" content={canonicalHref} />
+      <meta property="og:type" content="website" />
+      <meta property="og:locale" content={t.meta.htmlLang === "ms" ? "ms_MY" : "en_MY"} />
 
-  return null;
+      {/* 3. Twitter */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+
+      {/* 4. Canonical + Hreflang */}
+      <link rel="canonical" href={canonicalHref} />
+      <link rel="alternate" href={enHref} hrefLang="en" />
+      <link rel="alternate" href={msHref} hrefLang="ms" />
+      <link rel="alternate" href={enHref} hrefLang="x-default" />
+
+      {/* 5. Dynamic JSON-LD */}
+      <script type="application/ld+json">
+        {JSON.stringify(jsonLd)}
+      </script>
+    </Helmet>
+  );
 }

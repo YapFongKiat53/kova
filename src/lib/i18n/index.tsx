@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { createContext, useContext, useEffect, type ReactNode } from "react";
+import { useLocation } from "react-router-dom";
 import { en, type Dict } from "./en";
 import { ms } from "./ms";
 
@@ -12,65 +12,29 @@ const LangContext = createContext<{
   setLang: (l: Lang) => void;
 }>({ lang: "en", setLang: () => {} });
 
-/**
- * Language is URL-derived where possible so each language has a stable,
- * crawlable canonical:
- *
- *   /                EN   (default; what Google's first pass sees)
- *   /bidai           BM   (Malay landing — the URL itself carries the
- *                          primary search keyword)
- *   /blog, /blog/:s  shared; language falls back to the visitor's saved
- *                          preference so a BM visitor who clicks Journal
- *                          doesn't bounce back into English.
- *
- * Toggling the language on `/` or `/bidai` navigates between them — that's
- * what makes the BM page indexable as Malay. Toggling on /blog just flips
- * the in-page language; the URL stays put.
- */
 export function LangProvider({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
-  const navigate = useNavigate();
 
+  // 判断当前是否是马来文专属的 URL
   const isMalayUrl = pathname === "/bidai" || pathname.startsWith("/bidai/");
 
-  // Stored preference — used as the fallback on language-neutral routes.
-  const [storedLang, setStoredLang] = useState<Lang>("en");
-  useEffect(() => {
-    const saved = localStorage.getItem("kova-lang");
-    if (saved === "en" || saved === "ms") setStoredLang(saved);
-  }, []);
+  // 核心修复：语言 100% 根据网址决定！没有任何“中立”路由，也没有缓存记忆干扰。
+  // 只要是 /bidai 开头的就是 ms，其他所有情况（/process, /roller, / 等）统统是 en！
+  const lang: Lang = isMalayUrl ? "ms" : "en";
 
-  const lang: Lang = isMalayUrl ? "ms" : pathname === "/" ? "en" : storedLang;
-
-  // Mirror the active language to <html lang> for accessibility and SEO.
+  // 将当前正确的语言同步到 HTML 标签，这对 SEO 非常重要
   useEffect(() => {
     document.documentElement.lang = dictionaries[lang].meta.htmlLang;
   }, [lang]);
 
-  // Visiting /bidai becomes a vote for Malay on subsequent neutral routes.
-  useEffect(() => {
-    if (isMalayUrl && storedLang !== "ms") {
-      setStoredLang("ms");
-      try {
-        localStorage.setItem("kova-lang", "ms");
-      } catch {
-        /* ignore quota / private-mode errors */
-      }
-    }
-  }, [isMalayUrl, storedLang]);
-
+  // 我们保留一个空的 setLang 函数，以防其他组件（比如 LanguageToggle）调用它。
+  // 现在的实际语言切换已经由你刚才改好的 LanguageToggle 里的 `navigate(newPath)` 来完美处理了。
   const setLang = (l: Lang) => {
-    setStoredLang(l);
     try {
       localStorage.setItem("kova-lang", l);
     } catch {
       /* ignore */
     }
-
-    // Navigate between the canonical EN/BM URLs when on the home route.
-    // Anywhere else, just persist the preference — the URL stays put.
-    if (l === "ms" && pathname === "/") navigate("/bidai");
-    else if (l === "en" && isMalayUrl) navigate("/");
   };
 
   return (
