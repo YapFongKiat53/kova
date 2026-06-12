@@ -24,12 +24,20 @@ export function Nav() {
     { href: isBm ? "/bidai/proses" : "/process", label: t.process.eyebrow },
     { href: isBm ? "/bidai/reka" : "/configurator", label: t.configurator.eyebrow },
   ];
-  
+
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
-    onScroll();
+    let ticking = false;
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setScrolled(window.scrollY > 12);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -52,13 +60,13 @@ export function Nav() {
   // 根据语言动态设置 Journal 和 Contact 路径
   const journalHref = isBm ? "/bidai/jurnal" : "/blog";
   const contactHref = isBm ? "/bidai/hubungi" : "/contact";
-  
+
   const onJournalRoute = pathname.startsWith("/blog") || pathname.startsWith("/bidai/jurnal");
 
   return (
     <header
       className={
-        "sticky top-0 inset-x-0 z-50 transition-all duration-500 " +
+        "sticky top-0 inset-x-0 z-50 transition-all duration-500 will-change-transform " + // 👈 加这行
         (scrolled || mobileOpen
           ? "bg-[var(--color-cream)]/95 backdrop-blur-md border-b border-[var(--color-line-soft)]"
           : "bg-transparent border-b border-transparent")
@@ -190,9 +198,9 @@ export function Nav() {
               to={l.href}
               onClick={() => setMobileOpen(false)}
               className={
-                "py-3 text-[1.05rem] font-serif border-b border-[var(--color-line-soft)] last:border-b-0 transition-colors " + 
-                (isActive(l.href) 
-                  ? "text-[var(--color-clay-deep)]" 
+                "py-3 text-[1.05rem] font-serif border-b border-[var(--color-line-soft)] last:border-b-0 transition-colors " +
+                (isActive(l.href)
+                  ? "text-[var(--color-clay-deep)]"
                   : "text-[var(--color-ink)] hover:text-[var(--color-clay-deep)]")
               }
             >

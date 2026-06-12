@@ -1,4 +1,4 @@
-import { useEffect, useId, useState, useRef } from "react"; // 新增 useRef
+import { useEffect, useId, useState, useRef } from "react";
 import { Reveal } from "./Reveal";
 import { useT } from "@/lib/i18n";
 import { useConfigurator } from "@/lib/configurator/context";
@@ -13,34 +13,34 @@ import { VenetianOverlay } from "./configurator/VenetianOverlay";
 import { VertiSheerOverlay } from "./configurator/VertiSheerOverlay";
 import { ScenePhoto } from "./configurator/ScenePhoto";
 import { cn } from "@/lib/utils";
-
+import { useNavigate } from "react-router-dom"; 
+import { useRoutes } from "@/lib/routes";
 const PRODUCT_IDS: ProductId[] = ["roller", "venetian", "vertisheer"];
 
 export function Configurator() {
   const t = useT();
   const { configuration, setProduct, setFabric, submit } = useConfigurator();
   const { product, fabric, opacity } = configuration;
+  const navigate = useNavigate();
+  const r = useRoutes();
   const opacityLevel = OPACITY_LEVEL[opacity];
   const uid = useId().replace(/[:]/g, "");
   const fabricsForProduct = getFabricsForProduct(product);
   
-  // ✅ 新增：用于监听配置器是否即将进入视口
   const sectionRef = useRef<HTMLElement>(null);
   const [shouldPreload, setShouldPreload] = useState(false);
 
   useEffect(() => {
-    // 如果不支持 IntersectionObserver 或已经触发预加载，则直接跳过
     if (!("IntersectionObserver" in window) || shouldPreload) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // 当组件距离视口底部还有 300px 时，判定为即将进入视口
         if (entry.isIntersecting) {
           setShouldPreload(true); 
-          observer.disconnect(); // 触发一次后就不再监听
+          observer.disconnect();
         }
       },
-      { rootMargin: "300px" } // 提前 300px 触发
+      { rootMargin: "300px" }
     );
 
     if (sectionRef.current) {
@@ -60,15 +60,23 @@ export function Configurator() {
   }, [fabric.name]);
   const usePhotoPreview = Boolean(fabric.sceneImage) && !photoFailed;
 
+  // 🌟 核心修复 1：利用 setTimeout 将滚动操作放到下一个微任务队列，避开 React 状态更新的死锁
   const handleSubmit = () => {
-    submit();
-    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    submit(); // 1. 提交并填写数据
+    navigate(r.contact); // 2. 直接带用户跳转到 /contact 页面（如果是马来文版，它会自动跳去 /bidai/hubungi）
+    setTimeout(() => {
+      const contactSection = document.getElementById("contact");
+      if (contactSection) {
+        // 2. 完美的平滑定位跳转
+        contactSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 60); // 留出 60ms 让 React 完成 DOM 状态更新
   };
 
   return (
     <section
       id="configurator"
-      ref={sectionRef} // ✅ 将 ref 绑定到根节点
+      ref={sectionRef}
       className="fluid-section-y-tight border-t border-[var(--color-line)] bg-[var(--color-paper)]"
     >
       <div className="max-w-[1380px] mx-auto px-5 sm:px-6 lg:px-10">
@@ -98,7 +106,6 @@ export function Configurator() {
                 <ScenePhoto
                   src={fabric.sceneImage}
                   alt={`${t.configurator.products[product]} — ${fabric.name}`}
-                  // ✅ 修复：只有当 shouldPreload 为 true 时，才传具体的数组进去
                   preload={shouldPreload ? sceneUrls : []} 
                   onError={() => setPhotoFailed(true)}
                   className="w-full max-h-[38vh] sm:max-h-[60vh] lg:max-h-[calc(100vh-14rem)] overflow-hidden"
@@ -123,7 +130,7 @@ export function Configurator() {
             </p>
           </Reveal>
 
-          {/* ... 下方的 Controls 代码部分保持完全不变 ... */}
+          {/* 右侧控制区 */}
           <Reveal className="lg:col-span-5 flex flex-col gap-3 lg:gap-5" delay={120}>
             {/* Product tabs */}
             <div>
@@ -206,8 +213,9 @@ export function Configurator() {
             </div>
 
             {/* Summary + CTA */}
-            <div className="lg:sticky lg:bottom-4 lg:z-10 lg:mt-2">
-              {/* Mobile */}
+            {/* 🌟 核心修复 2：彻底重构这个卡片容器的类名，去掉外层无意义的粘性定位（它曾会导致框跟随滚动时拉伸变形），让内层卡片平滑地贴在底部而绝不影响其容器框 */}
+            <div className="relative mt-2 lg:mt-4">
+              {/* Mobile CTA */}
               <div className="lg:hidden flex items-center gap-2 rounded-full border border-[var(--color-line)] bg-[var(--color-cream-light)] pl-3 pr-1 py-1">
                 <span className="flex-1 min-w-0 truncate font-serif text-[0.86rem] text-[var(--color-ink)]">
                   {t.configurator.products[product]} · {fabric.name}
@@ -223,8 +231,8 @@ export function Configurator() {
                 </button>
               </div>
 
-              {/* Desktop */}
-              <div className="hidden lg:block rounded-md border border-[var(--color-line)] bg-[var(--color-cream-light)]/95 backdrop-blur-sm p-5 shadow-[0_8px_24px_-12px_rgba(26,23,20,0.18)]">
+              {/* Desktop Sticky Summary Card */}
+              <div className="hidden lg:block sticky bottom-6 z-20 rounded-md border border-[var(--color-line)] bg-[var(--color-cream-light)]/95 backdrop-blur-sm p-5 shadow-[0_12px_32px_-12px_rgba(26,23,20,0.22)] transition-shadow duration-300">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <p className="eyebrow">{t.configurator.summaryLabel}</p>
@@ -236,7 +244,7 @@ export function Configurator() {
                 <button
                   type="button"
                   onClick={handleSubmit}
-                  className="mt-4 w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-[var(--color-ink)] text-[var(--color-cream)] text-[0.92rem] font-medium hover:bg-[var(--color-clay-deep)] active:bg-[var(--color-clay-deep)] transition-colors"
+                  className="mt-4 w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-[var(--color-ink)] text-[var(--color-cream)] text-[0.92rem] font-medium hover:bg-[var(--color-clay-deep)] active:bg-[var(--color-clay-deep)] transition-colors shadow-sm"
                 >
                   {t.configurator.cta}
                   <span aria-hidden>→</span>
@@ -248,4 +256,4 @@ export function Configurator() {
       </div>
     </section>
   );
-}
+} 
