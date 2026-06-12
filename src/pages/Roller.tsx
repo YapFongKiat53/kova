@@ -29,6 +29,7 @@ export function RollerPage() {
         <ProductSpotlight
           id="roller"
           tone="cream"
+          priority={true} // 👈 告诉底层：这是首屏核心大图，给我最高优先级加载！
           {...t.products.roller}
           Detail={RollerBlind}
           detailSrc="/showcase/greige-roller.webp"

@@ -22,6 +22,7 @@ export type ProductSpotlightProps = {
   tone?: "cream" | "paper" | "ink";
   /** Accepted for backward compatibility with App.tsx prop spread — no longer rendered. */
   figureCaption?: string;
+  priority?: boolean;
 };
 
 export function ProductSpotlight({
@@ -37,7 +38,8 @@ export function ProductSpotlight({
   detailSrc,
   Detail,
   reverse,
-  tone = "cream",
+  tone = "cream", // 默认不开启，只有在首屏调用的地方才设为 true
+  priority = false, // 默认不开启，只有在首屏调用的地方才设为 true
 }: ProductSpotlightProps) {
   const t = useT();
   const r = useRoutes();
@@ -47,8 +49,8 @@ export function ProductSpotlight({
     tone === "ink"
       ? "bg-[var(--color-ink)] text-[var(--color-cream)]"
       : tone === "paper"
-      ? "bg-[var(--color-paper)]"
-      : "bg-[var(--color-cream)]";
+        ? "bg-[var(--color-paper)]"
+        : "bg-[var(--color-cream)]";
 
   return (
     <section
@@ -71,16 +73,17 @@ export function ProductSpotlight({
 
       <div className="max-w-[1240px] mx-auto px-5 sm:px-6 lg:px-10 pt-[clamp(1rem,0.5rem+1.5vw,2.5rem)] pb-[clamp(1.5rem,1rem+2.5vw,3rem)]">
         <div className={cn("grid lg:grid-cols-12 gap-5 lg:gap-12 items-end", reverse && "lg:[&>div:first-child]:order-2")}>
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-7 -translate-y-1 lg:-translate-y-24">
+            {/* ⬆️ 使用 transform 将元素在 Y 轴上移，不会改变它原本占据的物理空间 */}
             <Reveal>
               <h2 className={cn("headline fluid-h2", isInk ? "text-[var(--color-cream)]" : "text-[var(--color-ink)]")}>
                 {taglineA}
-                <span className={cn("block italic font-light", isInk ? "text-[var(--color-clay-light)]" : "text-[var(--color-clay-deep)]")}>
+                <span className={cn("block italic font-light mt-2", isInk ? "text-[var(--color-clay-light)]" : "text-[var(--color-clay-deep)]")}>
                   {taglineB}
                 </span>
               </h2>
             </Reveal>
-          </div>
+          </div>  
           <div className="lg:col-span-5">
             <Reveal delay={100}>
               <div className={cn("space-y-3 lg:space-y-4 fluid-body", isInk ? "text-[var(--color-cream)]/80" : "text-[var(--color-ink-soft)]")}>
@@ -121,13 +124,19 @@ export function ProductSpotlight({
       <div id={`${id}-spec`} className="max-w-[1240px] mx-auto px-5 sm:px-6 lg:px-10 pb-[clamp(2.5rem,1.5rem+4vw,6rem)]">
         <div className="grid lg:grid-cols-12 gap-6 lg:gap-16">
           <div className="lg:col-span-5 lg:sticky lg:top-28 self-start">
-            <Reveal>
+          <Reveal>
               <ImageSlot
                 ratio="4/5"
                 tone={isInk ? "ink" : "cream"}
                 src={detailSrc}
                 alt={`${name}`}
                 caption={detailCaption}
+                // ✅ 核心修复 1：利用传入的 priority 控制原生加载行为
+                loading={priority ? "eager" : "lazy"}
+                fetchPriority={priority ? "high" : "auto"}
+                // ✅ 核心修复 2：满足 Lighthouse 对 <img> 标签的要求 (4:5 比例)
+                width={960}
+                height={1200}
               >
                 {Detail ? <Detail className="w-full h-full" /> : undefined}
               </ImageSlot>

@@ -485,7 +485,7 @@ export const en = {
     emailLabel: "Email",
     emailOptional: "optional",
     emailPh: "you@example.com",
-    locationLabel: "Where are the windows?",
+    locationLabel: "Which area are you in ?",
     locationPh: "Address or neighbourhood",
     messageLabel: "Tell us about the room",
     messagePh: "What's the light like? What are you hoping to change?",

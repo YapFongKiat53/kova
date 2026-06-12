@@ -1,16 +1,21 @@
 // src/main.tsx
+import { lazy } from 'react'; // 1. 引入 React.lazy
 import { ViteReactSSG } from 'vite-react-ssg';
 import App from './App';
-import { Home } from './pages/Home';
-import { RollerPage } from './pages/Roller';
-import { VenetianPage } from './pages/Venetian';
-import { VertiSheerPage } from './pages/VertiSheer';
-import { ProcessPage } from './pages/ProcessPage';
-import { ConfiguratorPage } from './pages/ConfiguratorPage';
-import { ContactPage } from './pages/ContactPage';
-import { Blog } from './pages/Blog';
-import { BlogPost } from './pages/BlogPost';
+// 2. 首页 (Home) 作为首屏门面，必须保持直接引入！
+import { Home } from './pages/Home'; 
 import './index.css';
+
+// 3. 将所有非首屏组件改为懒加载 (处理了命名导出的情况)
+const RollerPage = lazy(() => import('./pages/Roller').then(m => ({ default: m.RollerPage })));
+const VenetianPage = lazy(() => import('./pages/Venetian').then(m => ({ default: m.VenetianPage })));
+const VertiSheerPage = lazy(() => import('./pages/VertiSheer').then(m => ({ default: m.VertiSheerPage })));
+const ProcessPage = lazy(() => import('./pages/ProcessPage').then(m => ({ default: m.ProcessPage })));
+const ConfiguratorPage = lazy(() => import('./pages/ConfiguratorPage').then(m => ({ default: m.ConfiguratorPage })));
+const ContactPage = lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
+// 把最重的 Blog 及其依赖剥离出去
+const Blog = lazy(() => import('./pages/Blog').then(m => ({ default: m.Blog })));
+const BlogPost = lazy(() => import('./pages/BlogPost').then(m => ({ default: m.BlogPost })));
 
 // 使用嵌套路由结构：App 作为根节点，页面作为其 children
 const routes = [
@@ -39,7 +44,7 @@ const routes = [
       { path: 'bidai/jurnal', element: <Blog /> },
       { path: 'bidai/jurnal/:slug', element: <BlogPost /> },
       
-      // 404 Fallback
+      // 404 Fallback (保持使用加载最快的 Home)
       { path: '*', element: <Home /> } 
     ]
   }

@@ -49,6 +49,17 @@ export function SeoHead() {
   const description = pageSeo.description;
   const keywords = pageSeo.keywords ?? t.seo.keywords;
 
+  // --- 🌟 新增：动态首屏图片预加载映射 (Issue 3 修复) ---
+  // 根据不同的页面，预加载不同的核心大图 (LCP)，提升首屏加载分数
+  const PRELOAD_IMAGES: Partial<Record<keyof typeof PAGE_KEY_FALLBACK, string>> = {
+    home: "/showcase/hero-living.webp",
+    roller: "/showcase/greige-roller.webp",
+    // 如果你有其他页面的首屏大图，强烈建议在这里补齐，例如：
+    // venetian: "/showcase/venetian-hero.webp",
+    // vertisheer: "/showcase/vertisheer-hero.webp",
+  };
+  const heroImageToPreload = PRELOAD_IMAGES[pageKey];
+
   // ⚠️ 在 SSG 渲染期间 (Node.js)，window 对象不存在，所以必须使用硬编码的正式域名
   const SITE_ORIGIN = "https://kovasunshade.com";
 
@@ -110,6 +121,16 @@ export function SeoHead() {
       <title>{title}</title>
       <meta name="description" content={description} />
       <meta name="keywords" content={keywords} />
+
+      {/* 🌟 新增：动态注入当前页面所需的首屏图片 */}
+      {heroImageToPreload && (
+        <link 
+          rel="preload" 
+          as="image" 
+          href={heroImageToPreload} 
+          type="image/webp" 
+        />
+      )}
 
       {/* 2. Open Graph / Facebook */}
       <meta property="og:title" content={title} />
