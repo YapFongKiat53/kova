@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
 import { setArticleJsonLd } from "@/components/JsonLd";
 import { useT } from "@/lib/i18n";
-import { getPost, formatPostDate, type Post } from "@/lib/blog";
+import { getPost, formatPostDate, type BlogPost } from "@/lib/blog";
 
 /**
  * Single blog post — fetches by slug from the URL and renders the
@@ -21,7 +21,7 @@ export function BlogPost() {
   const t = useT();
   // Back link returns to the index in the matching language.
   const blogIndex = pathname.startsWith("/bidai") ? "/bidai/jurnal" : "/blog";
-  const [post, setPost] = useState<Post | null | "missing">(null);
+  const [post, setPost] = useState<BlogPost | null | "missing">(null);
 
   useEffect(() => {
     if (!slug) {
@@ -77,7 +77,7 @@ export function BlogPost() {
               <Reveal>
                 <header className="mt-8 lg:mt-12 pb-8 lg:pb-12 border-b border-[var(--color-line)]">
                   <p className="text-[0.74rem] tracking-widest uppercase text-[var(--color-muted)]">
-                    {formatPostDate(post.published_at)}
+                    {formatPostDate(post.publishedAt)}
                     {post.author ? ` · ${post.author}` : ""}
                   </p>
                   <h1 className="mt-4 lg:mt-5 headline text-[clamp(1.9rem,1.3rem+2.5vw,3rem)] leading-[1.07] tracking-tight text-[var(--color-ink)]">
@@ -91,12 +91,12 @@ export function BlogPost() {
                 </header>
               </Reveal>
 
-              {post.cover_image_url && (
+              {post.image && (
                 <Reveal delay={80}>
                   <figure className="mt-10 lg:mt-14 -mx-5 sm:mx-0">
                     <img
-                      src={post.cover_image_url}
-                      alt={post.title}
+                      src={post.image}
+                      alt={post.title ?? ""}
                       className="w-full aspect-[16/9] object-cover rounded-md border border-[var(--color-line)]"
                     />
                   </figure>
@@ -105,7 +105,7 @@ export function BlogPost() {
 
               <Reveal delay={120}>
                 <div className="prose-kova mt-10 lg:mt-14">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.body_md}</ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content ?? ""}</ReactMarkdown>
                 </div>
               </Reveal>
             </article>

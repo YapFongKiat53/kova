@@ -291,22 +291,22 @@ export function JsonLd() {
  * loaded. Centralised here so the JSON shape stays consistent.
  */
 export function setArticleJsonLd(post: {
-  title: string;
-  excerpt: string | null;
-  body_md: string;
-  cover_image_url: string | null;
-  author: string | null;
-  published_at: string | null;
-  slug: string;
+  title?: string;
+  excerpt?: string;
+  content?: string;
+  image?: string;
+  author?: string;
+  publishedAt?: string;
+  slug?: string;
 }, pathname: string, lang: string) {
   setJsonLd("article", {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: post.title,
     description: post.excerpt ?? post.title,
-    image: post.cover_image_url ? [post.cover_image_url] : undefined,
-    datePublished: post.published_at,
-    dateModified: post.published_at,
+    image: post.image ? [post.image] : undefined,
+    datePublished: post.publishedAt,
+    dateModified: post.publishedAt,
     inLanguage: lang === "ms" ? "ms-MY" : "en-MY",
     author: { "@type": "Organization", name: post.author ?? "Kova Sun Shade" },
     publisher: { "@id": `${SITE_URL}/#business` },
