@@ -79,7 +79,7 @@ export function Configurator() {
       ref={sectionRef}
       className="fluid-section-y-tight border-t border-[var(--color-line)] bg-[var(--color-paper)]"
     >
-      <div className="max-w-[1380px] mx-auto px-5 sm:px-6 lg:px-10">
+      <div className="max-w-[1380px] mx-auto px-10 sm:px-6 lg:px-10">
         <Reveal>
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-3 lg:gap-5 mb-[clamp(1rem,0.5rem+1.5vw,2.5rem)]">
             <div>

@@ -5,6 +5,8 @@ import App from './App';
 // 首页 (Home) 作为首屏门面，必须保持直接引入！
 import { Home } from './pages/Home'; 
 import './index.css';
+import { Component as LayoutComponent } from "./Layout";
+
 
 // 将所有非首屏组件改为懒加载
 const RollerPage = lazy(() => import('./pages/Roller').then(m => ({ default: m.RollerPage })));

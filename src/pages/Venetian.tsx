@@ -24,7 +24,7 @@ export function VenetianPage() {
     <div className="min-h-screen bg-[var(--color-cream)]">
       <PromoBar />
       <Nav />
-      <main id="main" className="pt-16">
+      <main id="main" className="pt-1">
         <ProductSpotlight
           id="venetian"
           tone="paper"

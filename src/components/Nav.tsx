@@ -66,7 +66,7 @@ export function Nav() {
   return (
     <header
       className={
-        "sticky top-0 inset-x-0 z-50 transition-all duration-500 will-change-transform " + // 👈 加这行
+        "sticky top-0 inset-x-0 z-50 transition-all duration-500 will-change-transform" + // 👈 加这行
         (scrolled || mobileOpen
           ? "bg-[var(--color-cream)]/95 backdrop-blur-md border-b border-[var(--color-line-soft)]"
           : "bg-transparent border-b border-transparent")
@@ -80,7 +80,7 @@ export function Nav() {
         Skip to content
       </a>
 
-      <div className="max-w-[1240px] mx-auto px-6 lg:px-10 h-16 flex items-center justify-between gap-4">
+      <div className="max-w-[1240px] mx-auto px-6 lg:px-10 h-24 flex items-center justify-between gap-4">
         <Link
           to={homePath}
           onClick={() => setMobileOpen(false)}

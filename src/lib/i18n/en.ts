@@ -10,60 +10,60 @@ export const en = {
     pages: {
       home: {
         title:
-          "Kova Sun Shade — Roller, Venetian & VertiSheer Blinds Malaysia",
+          "KovaSunShade | Blinds & Curtain | Window Blind Malaysia",
         description:
-          "Factory-direct made-to-measure window blinds in Klang Valley. Roller, Venetian and VertiSheer up to 40% less than retail. Bidai dan langsir tingkap untuk rumah anda.",
+          "Discover custom Roller, Venetian and VertiSheer blinds in Malaysia. Send your window details and get factory-direct options for your home, office or shopshoplotde",
         keywords:
           "roller blinds Malaysia, venetian blinds Malaysia, vertisheer, factory direct blinds, motorised blinds, made to measure blinds, Petaling Jaya, Klang Valley, bidai, langsir, bidai tingkap, langsir tingkap, bidai Malaysia, bidai dan langsir rumah anda",
       },
       roller: {
-        title: "Roller Blinds Malaysia · Made to Measure · Kova Sun Shade",
+        title: "KovaSunShade | Roller Blind",
         description:
-          "Factory-direct roller blinds in 13 fabric options — blackout, dim-out, sunscreen, light-filtering. Cut and fitted to your windows in Klang Valley. Up to 40% less than retail.",
+          "Shop made-to-measure Roller Blinds in Malaysia. Choose blackout, dim-out, sunscreen or light-filtering fabrics for homes, offices and shoplots.",
         keywords:
           "roller blinds Malaysia, made to measure roller blinds, blackout roller blinds, sunscreen blinds, dim-out blinds, bidai Roller, bidai Roller Malaysia, Cenza, Denver, Shiro, Petaling Jaya",
       },
       venetian: {
-        title: "Venetian Blinds Malaysia · Aluminium, Wood, Faux-Wood · Kova",
+        title: "KovaSunShade | Venetian Blind",
         description:
-          "Venetian blinds with a smooth chain · tilt · lift mechanism. W101 Alpine White, W301 Pearl River, W302 Agate Grey and W206 Mahogany Teak finishes. Factory-direct from Petaling Jaya.",
+          "Custom Your Venetian Blinds in Malaysia with aluminium, wood and faux-wood finishes. Control light, privacy and airflow with a timeless modern look.",
         keywords:
           "venetian blinds Malaysia, aluminium venetian blinds, wood venetian blinds, faux wood blinds, bidai Venetian, W101, W301, W302, W206, Petaling Jaya",
       },
       vertisheer: {
         title:
-          "VertiSheer — Curtain-Soft, Blind-Precise · Kova Sun Shade Malaysia",
+          "KovaSunShade | Vertisheer Blind",
         description:
-          "Vertical sheer fabric vanes for sliding doors and glass walls. Tracks engineered up to 6m. Five Pivot fabrics from White to Anchor. Curtain-soft, blind-precise.",
+          "Upgrade your large windows with VertiSheer blinds. Soft curtain-like fabric with precise light control, privacy and modern elegance.",
         keywords:
           "vertisheer Malaysia, vertical sheer blinds, sliding door blinds, glass wall blinds, langsir tingkap besar, Pivot, Klang Valley",
       },
       process: {
         title:
-          "How We Work — Factory-Direct Blinds, Klang Valley · Kova Sun Shade",
+          "KovaSunShade | Window Blinds & Shade",
         description:
-          "We measure, manufacture and install every blind ourselves from our Petaling Jaya workshop. No distributor, wholesaler or showroom mark-up — pricing about 40% below retail.",
+          "See how Kova Sun Shade measures, specifies and installs custom blinds in Klang Valley. Factory-direct pricing with no showroom mark-up or sales pressure.",
         keywords:
           "factory direct blinds Malaysia, made to measure blinds Klang Valley, blinds installation Petaling Jaya, custom window blinds, on-site measure",
       },
       configurator: {
-        title: "Design Your Blind — Live Preview · Kova Sun Shade",
+        title: "KovaSunShade | Design Your Blinds Today",
         description:
-          "Pick a product, fabric and opacity. Watch the live room preview cross-fade as you choose. Send your configuration straight to us for a factory-direct quote.",
+          "Compare Roller, Venetian and VertiSheer blinds, choose fabrics and preview your design before requesting a custom factory-direct quote.",
         keywords:
           "blinds configurator, design your blinds, blind fabric chooser, live preview, made to measure blinds, Kova Sun Shade",
       },
       contact: {
-        title: "Get a Quote — Blinds Klang Valley · Kova Sun Shade Malaysia",
+        title: "KovaSunShade | Get Quote Today | Blind Malaysia",
         description:
-          "Tell us about your windows. We respond within 48 working hours with a measure date and a factory-direct quote. Bidai dibuat ikut ukuran rumah anda.",
+          "Request a custom blinds quote from Kova Sun Shade. Send your window details and get factory-direct options for your home, office or shoplot.",
         keywords:
           "blinds quote Malaysia, blinds Klang Valley, measure blinds Petaling Jaya, bidai dibuat ikut ukuran, get a quote, Kova Sun Shade contact",
       },
       blog: {
-        title: "Journal — Notes from the Kova Atelier",
+        title: "KovaSunShade | Journal",
         description:
-          "Field notes, fabric studies and a quiet running record of what we ship from our Klang Valley workshop.",
+          "Read Kova's notes on window blinds, fabrics, light control and design ideas for Malaysian homes, offices and commercial spaces.",
         keywords:
           "Kova journal, window blinds blog Malaysia, fabric notes, install reports, Petaling Jaya workshop",
       },
@@ -473,8 +473,8 @@ export const en = {
     direct: "Direct",
     hours: "Hours",
     service: "Service",
-    studioAddr: "No. 14, Jalan Bayu 4\nPetaling Jaya, Malaysia",
-    directInfo: "info@kovasunshade.com\n+60 12 345 6789",
+    studioAddr: "No 3, Jalan Tpk 1/6\nTaman Perindustrian Kinrara, \n47180 Puchong, Selangor",
+    directInfo: "info@kovasunshade.com\n+60 17 977 8289",
     hoursInfo: "Mon — Fri, 9 to 6\nSaturday by appointment",
     serviceInfo: "Klang Valley & beyond\nTrade & residential",
     nameLabel: "Your name",

@@ -17,12 +17,12 @@ export interface SEOData {
 // 3. 设定默认的全局 SEO（套用你提供的英文和马来文文案）
 export const defaultSEO: SEOData = {
   en: {
-    title: "Window Blinds & Shade | Window Blind Malaysia | Kova Sun Shade",
-    description: "Transform your outdoor space with Kova Sun Shade. We supply and install quality window blinds like Roller Blinds, Timber Venetian Blinds ,Vertisheer Blinds and sun shading systems for homes and commercial properties."
+    title: "KovaSunShade | Blinds & Curtain | Window Blind Malaysia",
+    description: "Discover custom Roller, Venetian and VertiSheer blinds in Malaysia. Send your window details and get factory-direct options for your home, office or shopshoplotde"
   },
   ms: {
-    title: "Bidai dan Langsir Malaysia | Kova Sun Shade",
-    description: "Tingkatkan keselesaan dan perlindungan ruang anda dengan Kova Sun Shade. Pakar dari luar , Roller Bidai dan sistem teduhan untuk kediaman serta komersial."
+    title: "KovaSunShade | Bidai Dan Langsir | Bidai Tingkap Malaysia",
+    description: "Dapatkan bidai tingkap custom seperti Roller, Venetian dan VertiSheer. Harga terus dari kilang, rekaan kemas dan sesuai untuk rumah atau pejabat."
   },
   keywords: "sunshade, blinds, roller blinds, venetian blinds, vertisheer, factory direct blinds, bidai, langsir, awning, zip blind",
   ogImage: "https://kovasunshade.com/images/default-og.jpg", // 保持你的真实图片链接
@@ -42,33 +42,33 @@ export const seoConfig: Record<string, SEOData> = {
   },
   roller: {
     en: {
-      title: "Roller Blinds | Minimalist & Modern | Kova Sunshade",
-      description: "Sleek, modern roller blinds perfect for any room. Easy to use and available in blockout or light-filtering fabrics.",
+      title: "KovaSunShade | Roller Blind",
+      description: "Shop made-to-measure Roller Blinds in Malaysia. Choose blackout, dim-out, sunscreen or light-filtering fabrics for homes, offices and shoplots.",
     },
     ms: {
-      title: "Bidai Gulung (Roller Blinds) | Minimalis & Moden | Kova Sunshade",
-      description: "Bidai gulung yang elegan dan moden, sesuai untuk mana-mana bilik. Mudah digunakan dan tersedia dalam fabrik gelap (blockout) atau penapis cahaya.",
+      title: "KovaSunShade | Bidai Roller ",
+      description: "Dapatkan bidai roller custom untuk rumah, pejabat dan kedai. Pilihan blackout, dim-out, sunscreen dan light-filtering dengan kemasan moden.",
     },
     keywords: "roller blinds, modern blinds, blockout roller blinds, bidai gulung",
   },
   venetian: {
     en: {
-      title: "Venetian Blinds | Classic Control | Kova Sunshade",
-      description: "Timeless venetian blinds offering ultimate light and privacy control. Available in timber and aluminum.",
+      title: "KovaSunShade | Venetian Blind",
+      description: "Custom Your Venetian Blinds in Malaysia with aluminium, wood and faux-wood finishes. Control light, privacy and airflow with a timeless modern look.",
     },
     ms: {
-      title: "Bidai Venetian | Kawalan Klasik | Kova Sunshade",
-      description: "Bidai venetian malar hijau yang menawarkan kawalan cahaya dan privasi maksimum. Tersedia dalam pilihan kayu dan aluminium.",
+      title: "KovaSunShade | Bidai Venetian",
+      description: "Bidai Venetian custom dengan pilihan aluminium, kayu dan faux-wood. Kawal cahaya, privasi dan aliran udara untuk ruang moden dan klasik.",
     }
   },
   vertisheer: {
     en: {
-      title: "Vertisheer Blinds | Elegance Meets Function | Kova Sunshade",
-      description: "Experience the elegance of sheer curtains with the functionality of vertical blinds.",
+      title: "KovaSunshade | Vertisheer Blind",
+      description: "Upgrade your large windows with VertiSheer blinds. Soft curtain-like fabric with precise light control, privacy and modern elegance.",
     },
     ms: {
-      title: "Bidai Vertisheer | Keanggunan & Fungsi | Kova Sunshade",
-      description: "Alami keanggunan langsir nipis (sheer) dengan kefungsian bidai menegak (vertical blinds).",
+      title: "KovaSunShade | Bidai Vertisheer",
+      description: "Cantikkan tingkap besar dan pintu gelangsar dengan VertiSheer. Gaya lembut seperti langsir, dengan kawalan cahaya dan privasi yang kemas.",
     }
   },
   "factory-direct": {
