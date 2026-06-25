@@ -8,32 +8,37 @@ import { useRoutes } from "@/lib/routes";
 export function Hero() {
   const t = useT();
   const r = useRoutes();
+  
   return (
     <section id="top" className="relative pt-[clamp(3rem,2rem+4vw,7rem)] pb-[clamp(2rem,1rem+3.5vw,5rem)]">
       <div className="max-w-[1380px] mx-auto px-5 sm:px-6 lg:px-10">
         <div className="text-center max-w-5xl mx-auto pt-4 lg:pt-12">
-          <div className="animate-slide-up">            <Link
-            to={r.process}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--color-line)] bg-[var(--color-paper)] text-[0.74rem] sm:text-[0.78rem] tracking-tight text-[var(--color-ink-soft)] hover:border-[var(--color-ink)] hover:text-[var(--color-ink)] transition-colors"
-          >
-            <span className="inline-flex h-1.5 w-1.5 rounded-full bg-[var(--color-clay)]" />
-            {t.hero.chip}
-            <span aria-hidden className="text-[var(--color-clay)]">→</span>
-          </Link>
+          <div className="animate-slide-up">            
+            <Link
+              to={r.process}
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--color-line)] bg-[var(--color-paper)] text-[0.74rem] sm:text-[0.78rem] tracking-tight text-[var(--color-ink-soft)] hover:border-[var(--color-ink)] hover:text-[var(--color-ink)] transition-colors"
+            >
+              <span className="inline-flex h-1.5 w-1.5 rounded-full bg-[var(--color-clay)]" />
+              {t.hero.chip}
+              <span aria-hidden className="text-[var(--color-clay)]">→</span>
+            </Link>
           </div>
           <p className="eyebrow mt-4 lg:mt-5 animate-slide-up delay-100">{t.hero.eyebrow}</p>
-          <h1 className="mt-4 lg:mt-6 headline fluid-h1 text-[var(--color-ink)] animate-slide-up delay-200">              {t.hero.titleA}
+          <h1 className="mt-4 lg:mt-6 headline fluid-h1 text-[var(--color-ink)] animate-slide-up delay-200">              
+            {t.hero.titleA}
             <span className="italic font-light text-[var(--color-clay-deep)]"> {t.hero.titleB}</span>
           </h1>
-          <p className="mt-5 lg:mt-7 max-w-2xl mx-auto fluid-body text-[var(--color-ink-soft)] animate-slide-up delay-300">              {t.hero.body}
+          <p className="mt-5 lg:mt-7 max-w-2xl mx-auto fluid-body text-[var(--color-ink-soft)] animate-slide-up delay-300">              
+            {t.hero.body}
           </p>
-          <div className="mt-6 lg:mt-9 flex flex-wrap items-center justify-center gap-2 lg:gap-3 animate-slide-up delay-400">              <Link
-            to={r.configurator}
-            className="inline-flex items-center gap-2 px-5 lg:px-6 py-2.5 lg:py-3 rounded-full bg-[var(--color-ink)] text-[var(--color-cream)] text-[0.9rem] lg:text-[0.95rem] font-medium hover:bg-[var(--color-clay-deep)] transition-colors"
-          >
-            {t.hero.ctaA}
-            <span aria-hidden>→</span>
-          </Link>
+          <div className="mt-6 lg:mt-9 flex flex-wrap items-center justify-center gap-2 lg:gap-3 animate-slide-up delay-400">              
+            <Link
+              to={r.configurator}
+              className="inline-flex items-center gap-2 px-5 lg:px-6 py-2.5 lg:py-3 rounded-full bg-[var(--color-ink)] text-[var(--color-cream)] text-[0.9rem] lg:text-[0.95rem] font-medium hover:bg-[var(--color-clay-deep)] transition-colors"
+            >
+              {t.hero.ctaA}
+              <span aria-hidden>→</span>
+            </Link>
             <Link
               to={r.contact}
               className="inline-flex items-center gap-2 px-5 lg:px-6 py-2.5 lg:py-3 rounded-full text-[0.9rem] lg:text-[0.95rem] font-medium text-[var(--color-ink)] hover:text-[var(--color-clay-deep)] transition-colors"
@@ -55,24 +60,35 @@ export function Hero() {
               decoding="async"
               width={1200}
               height={578}
-              srcSet="/showcase/hero-living-640.webp 640w, /showcase/hero-living.webp 1200w"
-              sizes="(max-width: 640px) 640px, 1200px"
+              // 直接写死 public 文件夹下的绝对路径
+              srcSet="
+                /showcase/hero-living-640.webp 640w, 
+                /showcase/hero-living-800.webp 800w, 
+                /showcase/hero-living-1024.webp 1024w, 
+                /showcase/hero-living.webp 1200w
+              "
+              sizes="
+                (max-width: 640px) calc(100vw - 40px), 
+                (max-width: 1024px) calc(100vw - 80px), 
+                1200px
+              "
             >
               <HeroVisual className="w-full h-full" />
             </ImageSlot>
           </div>
         </div>
 
-        <dl className="mt-[clamp(2.5rem,1rem+5vw,7rem)] grid grid-cols-2 lg:grid-cols-4 gap-px bg-[var(--color-line)] border border-[var(--color-line)] rounded-md overflow-hidden animate-slide-up" style={{ animationDelay: '0.5s' }}>            {t.hero.stats.map(([n, body]) => (
-          <div key={n} className="bg-[var(--color-cream-light)] p-[clamp(1rem,0.5rem+1.5vw,2rem)]">
-            <dt className="headline fluid-stat text-[var(--color-ink)]">{n}</dt>
-            <dd className="mt-[clamp(0.35rem,0.25rem+0.3vw,0.6rem)] text-[clamp(0.78rem,0.74rem+0.2vw,0.92rem)] leading-snug text-[var(--color-muted)] max-w-[18ch]">
-              {body}
-            </dd>
-          </div>
-        ))}
+        <dl className="mt-[clamp(2.5rem,1rem+5vw,7rem)] grid grid-cols-2 lg:grid-cols-4 gap-px bg-[var(--color-line)] border border-[var(--color-line)] rounded-md overflow-hidden animate-slide-up" style={{ animationDelay: '0.5s' }}>            
+          {t.hero.stats.map(([n, body]) => (
+            <div key={n} className="bg-[var(--color-cream-light)] p-[clamp(1rem,0.5rem+1.5vw,2rem)]">
+              <dt className="headline fluid-stat text-[var(--color-ink)]">{n}</dt>
+              <dd className="mt-[clamp(0.35rem,0.25rem+0.3vw,0.6rem)] text-[clamp(0.78rem,0.74rem+0.2vw,0.92rem)] leading-snug text-[var(--color-muted)] max-w-[18ch]">
+                {body}
+              </dd>
+            </div>
+          ))}
         </dl>
       </div>
-    </section >
+    </section>
   );
 }

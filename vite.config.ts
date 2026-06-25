@@ -16,5 +16,11 @@ export default defineConfig({
   },
   ssgOptions: {
     dirStyle: 'nested'
+  },
+  // 👇 添加下面这段 build 配置
+  build: {
+    modulePreload: {
+      polyfill: true, // 确保开启预加载
+    },
   }
 });
