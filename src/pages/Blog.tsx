@@ -15,6 +15,7 @@ import { isSupabaseConfigured } from "@/lib/supabase";
 export function Blog() {
   const t = useT();
   const { pathname } = useLocation();
+  const lang = t.meta.htmlLang; // 假设这是你的语言标识 'en' 或 'my'
   // Keep post links on the language-matched URL prefix
   const blogBase = pathname.startsWith("/bidai") ? "/bidai/jurnal" : "/blog";
   
@@ -27,13 +28,11 @@ export function Blog() {
   // 获取 Supabase 数据
   useEffect(() => {
     let cancelled = false;
-    listPosts().then((rows) => {
+    listPosts("All", lang).then((rows) => {
       if (!cancelled) setPosts(rows);
     });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    return () => { cancelled = true; };
+  }, [lang]); // <--- 依赖项加入 lang
 
   // --- 逻辑：提取全部分类 ---
   const categories = useMemo(() => {

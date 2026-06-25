@@ -19,6 +19,10 @@ export function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const { pathname } = useLocation();
   const t = useT();
+
+  // 获取当前语言环境，确保与数据库的 lang 字段匹配
+  const lang = t.meta.htmlLang;
+
   // Back link returns to the index in the matching language.
   const blogIndex = pathname.startsWith("/bidai") ? "/bidai/jurnal" : "/blog";
   const [post, setPost] = useState<BlogPost | null | "missing">(null);
@@ -28,17 +32,25 @@ export function BlogPost() {
       setPost("missing");
       return;
     }
+
     let cancelled = false;
     setPost(null);
-    getPost(slug).then((row) => {
+
+    // 传入 slug 和当前语言环境进行精准查询
+    getPost(slug, lang).then((row) => {
       if (cancelled) return;
+
       setPost(row ?? "missing");
-      if (row) setArticleJsonLd(row, pathname, t.meta.htmlLang);
+
+      if (row) {
+        setArticleJsonLd(row, pathname, lang);
+      }
     });
+
     return () => {
       cancelled = true;
     };
-  }, [slug, pathname, t.meta.htmlLang]);
+  }, [slug, pathname, lang]); // 添加 lang 作为依赖，语言切换时触发重新加载
 
   const loading = post === null;
   const missing = post === "missing";
@@ -104,9 +116,10 @@ export function BlogPost() {
               )}
 
               <Reveal delay={120}>
-                <div className="prose-kova mt-10 lg:mt-14">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content ?? ""}</ReactMarkdown>
-                </div>
+                <div
+                  className="prose-kova mt-10 lg:mt-14"
+                  dangerouslySetInnerHTML={{ __html: post.content ?? "" }}
+                />
               </Reveal>
             </article>
           )}

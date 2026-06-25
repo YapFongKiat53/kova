@@ -15,22 +15,22 @@ export interface BlogPost {
   title?: string;
   featured?: boolean;
   slug?: string;
+  lang?: string;
 }
 
-/** * 列表页使用的轻量级类型
- */
+/** 列表页使用的轻量级类型 */
 export type BlogPostSummary = Omit<BlogPost, "content">;
 
 /**
- * 获取所有已发布的文章（按发布时间倒序）
+ * 获取特定语言、已发布的文章（按发布时间倒序）
  */
-export async function listPosts(category: BlogCategory = "All"): Promise<BlogPostSummary[]> {
+export async function listPosts(category: BlogCategory = "All", lang: string = "en"): Promise<BlogPostSummary[]> {
   if (!supabase) {
     console.warn("[blog] Supabase 客户端未初始化");
     return [];
   }
 
-  // 1. 基础查询与大写列名别名映射
+  // 1. 基础查询：增加了 .eq("lang", lang) 来精确筛选语言
   let query = supabase
     .from("KovaTable")
     .select(`
@@ -42,15 +42,17 @@ export async function listPosts(category: BlogCategory = "All"): Promise<BlogPos
       author, 
       tags, 
       featured, 
+      lang,
       createdAt:"createdAt", 
       updatedAt:"updatedAt", 
       publishedAt:"publishedAt"
-    `);
+    `)
+    .eq("lang", lang); 
 
-  // 2. 严格的时间与发布状态过滤 (注意: 驼峰字段在过滤器中必须使用 '""' 包裹)
+  // 2. 时间与发布状态过滤
   query = query
-    .not('"publishedAt"', "is", null)
-    .lte('"publishedAt"', new Date().toISOString())
+    // .not('"publishedAt"', "is", null)
+    // .lte('"publishedAt"', new Date().toISOString())
     .order('"publishedAt"', { ascending: false });
 
   const { data, error } = await query;
@@ -60,42 +62,34 @@ export async function listPosts(category: BlogCategory = "All"): Promise<BlogPos
     return [];
   }
 
-  // 【核心调试日志】在此处打印回传的数据，帮助你在浏览器控制台一眼看清是否拿到了数据
-  console.log("[blog] 从 KovaTable 成功获取到的原始数据包:", data);
+  console.log(`[blog] 从 KovaTable 成功获取到的 [${lang}] 原始数据包:`, data);
   
   return (data ?? []) as BlogPostSummary[];
 }
 
 /**
- * 根据 slug 获取单篇文章内容
+ * 根据 slug 和当前语言获取单篇文章内容
  */
-export async function getPost(slug: string): Promise<BlogPost | null> {
+// lib/blog.ts 临时修改
+export async function getPost(slug: string, lang: string = "en"): Promise<BlogPost | null> {
   if (!supabase) return null;
 
+  // 这里只保留最核心的两个维度：slug 和 lang
   const { data, error } = await supabase
     .from("KovaTable")
     .select(`
-      id, 
-      slug, 
-      title, 
-      excerpt, 
-      content, 
-      image, 
-      author, 
-      tags, 
-      featured, 
-      createdAt:"createdAt", 
-      updatedAt:"updatedAt", 
-      publishedAt:"publishedAt"
+      id, slug, title, excerpt, content, image, author, tags, featured, lang,
+      createdAt, updatedAt, publishedAt
     `)
     .eq("slug", slug)
-    .not('"publishedAt"', "is", null)
+    .eq("lang", lang) 
     .maybeSingle();
 
   if (error) {
     console.error("[blog] getPost 失败:", error.message);
     return null;
   }
+  
   return (data ?? null) as BlogPost | null;
 }
 
