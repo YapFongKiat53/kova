@@ -57,7 +57,7 @@ export function JsonLd() {
       name: "Kova Sun Shade",
       alternateName: isMalay ? "Kova — Bidai dan Langsir Tingkap" : undefined,
       // 修复 1：加上 ?. 并提供默认描述防崩溃
-      description: t.seo?.description || "Premium Window Blinds and Shades", 
+      description: t.seo?.description || "Premium Window Blinds and Shades",
       url: SITE_URL,
       email: "info@kovasunshade.com",
       telephone: "+60179778289",
@@ -134,7 +134,8 @@ export function JsonLd() {
       offers: {
         "@type": "Offer",
         priceCurrency: "MYR",
-        availability: "https://schema.org/InStock",
+        "price": "0.00",
+
         url: `${SITE_URL}${isMalay ? "/bidai/hubungi" : "/contact"}`,
       },
     };
@@ -243,7 +244,7 @@ export function JsonLd() {
         "@type": "ListItem",
         position: 2,
         name: productMatch[1] === "roller" ? (isMalay ? "Bidai Roller" : "Roller Blinds")
-            : productMatch[1] === "venetian" ? (isMalay ? "Bidai Venetian" : "Venetian Blinds")
+          : productMatch[1] === "venetian" ? (isMalay ? "Bidai Venetian" : "Venetian Blinds")
             : "VertiSheer",
         item: `${SITE_URL}${pathname}`,
       });
