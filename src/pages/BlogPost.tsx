@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
@@ -27,6 +25,13 @@ export function BlogPost() {
   const blogIndex = pathname.startsWith("/bidai") ? "/bidai/jurnal" : "/blog";
   const [post, setPost] = useState<BlogPost | null | "missing">(null);
 
+  // 【核心修复 3】：添加 isMounted 状态，彻底解决 Hydration Error 418 (UI 不匹配问题)
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   useEffect(() => {
     if (!slug) {
       setPost("missing");
@@ -37,8 +42,11 @@ export function BlogPost() {
     setPost(null);
 
     // 传入 slug 和当前语言环境进行精准查询
-    getPost(slug, lang).then((row) => {
+    getPost(slug, lang).then((res) => {
       if (cancelled) return;
+
+      // 【核心修复 1】：拦截并提取数组中的第一项数据
+      const row = Array.isArray(res) ? res[0] : res;
 
       setPost(row ?? "missing");
 
@@ -50,7 +58,7 @@ export function BlogPost() {
     return () => {
       cancelled = true;
     };
-  }, [slug, pathname, lang]); // 添加 lang 作为依赖，语言切换时触发重新加载
+  }, [slug, pathname, lang]);
 
   const loading = post === null;
   const missing = post === "missing";
@@ -60,70 +68,71 @@ export function BlogPost() {
       <Nav />
 
       <main id="main" className="pt-28 pb-24">
-        <div className="max-w-[760px] mx-auto px-5 sm:px-6 lg:px-10">
-          <Link
-            to={blogIndex}
-            className="inline-flex items-center gap-1.5 text-[0.78rem] tracking-widest uppercase text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors"
-          >
-            <span aria-hidden>←</span>
-            {t.blog.backToIndex}
-          </Link>
+        {/* 只有在客户端组件挂载完成后，才渲染可能产生时区/语言分歧的内容，完美避开 418 报错 */}
+        {isMounted && (
+          <div className="max-w-[760px] mx-auto px-5 sm:px-6 lg:px-10">
+            <Link
+              to={blogIndex}
+              className="inline-flex items-center gap-1.5 text-[0.78rem] tracking-widest uppercase text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors"
+            >
+              <span aria-hidden>←</span>
+              {t.blog.backToIndex}
+            </Link>
 
-          {loading && (
-            <p className="mt-10 text-[0.92rem] text-[var(--color-muted)]">{t.blog.loading}</p>
-          )}
+            {loading && (
+              <p className="mt-10 text-[0.92rem] text-[var(--color-muted)]">{t.blog.loading}</p>
+            )}
 
-          {missing && (
-            <div className="mt-12 max-w-xl">
-              <p className="font-serif text-[1.5rem] lg:text-[1.9rem] leading-snug text-[var(--color-ink)]">
-                {t.blog.notFoundTitle}
-              </p>
-              <p className="mt-3 text-[0.92rem] leading-relaxed text-[var(--color-muted)]">
-                {t.blog.notFoundBody}
-              </p>
-            </div>
-          )}
+            {missing && (
+              <div className="mt-12 max-w-xl">
+                <p className="font-serif text-[1.5rem] lg:text-[1.9rem] leading-snug text-[var(--color-ink)]">
+                  {t.blog.notFoundTitle}
+                </p>
+                <p className="mt-3 text-[0.92rem] leading-relaxed text-[var(--color-muted)]">
+                  {t.blog.notFoundBody}
+                </p>
+              </div>
+            )}
 
-          {post && post !== "missing" && (
-            <article>
-              <Reveal>
-                <header className="mt-8 lg:mt-12 pb-8 lg:pb-12 border-b border-[var(--color-line)]">
-                  <p className="text-[0.74rem] tracking-widest uppercase text-[var(--color-muted)]">
-                    {formatPostDate(post.publishedAt)}
-                    {post.author ? ` · ${post.author}` : ""}
-                  </p>
-                  <h1 className="mt-4 lg:mt-5 headline text-[clamp(1.9rem,1.3rem+2.5vw,3rem)] leading-[1.07] tracking-tight text-[var(--color-ink)]">
-                    {post.title}
-                  </h1>
-                  {post.excerpt && (
-                    <p className="mt-5 lg:mt-6 text-[clamp(1rem,0.9rem+0.3vw,1.15rem)] leading-relaxed text-[var(--color-ink-soft)]">
-                      {post.excerpt}
+            {post && post !== "missing" && (
+              <article>
+                <Reveal>
+                  <header className="mt-8 lg:mt-12 pb-8 lg:pb-12 border-b border-[var(--color-line)]">
+                    <p className="text-[0.74rem] tracking-widest uppercase text-[var(--color-muted)]">
+                      {formatPostDate(post.publishedAt)}
+                      {post.author ? ` · ${post.author}` : ""}
                     </p>
-                  )}
-                </header>
-              </Reveal>
-
-              {post.image && (
-                <Reveal delay={80}>
-                  <figure className="mt-10 lg:mt-14 -mx-5 sm:mx-0">
-                    <img
-                      src={post.image}
-                      alt={post.title ?? ""}
-                      className="w-full aspect-[16/9] object-cover rounded-md border border-[var(--color-line)]"
-                    />
-                  </figure>
+                    <h1 className="mt-4 lg:mt-5 headline text-[clamp(1.9rem,1.3rem+2.5vw,3rem)] leading-[1.07] tracking-tight text-[var(--color-ink)]">
+                      {post.title}
+                    </h1>
+                    {post.excerpt && (
+                      <p className="mt-5 lg:mt-6 text-[clamp(1rem,0.9rem+0.3vw,1.15rem)] leading-relaxed text-[var(--color-ink-soft)]">
+                        {post.excerpt}
+                      </p>
+                    )}
+                  </header>
                 </Reveal>
-              )}
 
-              <Reveal delay={120}>
+                {post.image && (
+                  <Reveal delay={80}>
+                    <figure className="mt-10 lg:mt-14 -mx-5 sm:mx-0">
+                      <img
+                        src={post.image}
+                        alt={post.title ?? ""}
+                        className="w-full aspect-[16/9] object-cover rounded-md border border-[var(--color-line)]"
+                      />
+                    </figure>
+                  </Reveal>
+                )}
+
                 <div
                   className="prose-kova mt-10 lg:mt-14"
                   dangerouslySetInnerHTML={{ __html: post.content ?? "" }}
                 />
-              </Reveal>
-            </article>
-          )}
-        </div>
+              </article>
+            )}
+          </div>
+        )}
       </main>
 
       <Footer />
