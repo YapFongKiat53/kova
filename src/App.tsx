@@ -1,7 +1,6 @@
 // src/App.tsx
 import { Suspense } from "react";
 import { Outlet } from "react-router-dom";
-import { HelmetProvider } from "react-helmet-async";
 import { LangProvider } from "@/lib/i18n";
 import { ConfiguratorProvider } from "@/lib/configurator/context";
 import { ScrollManager } from "./components/ScrollManager";
@@ -12,24 +11,25 @@ import { JsonLd } from "./components/JsonLd";
 import WhatsAppChatWidget from "./components/WhatsAppChatWidget";
 
 export default function App() {
+  // ⚠️ 不要在这里再包一层 HelmetProvider！
+  // vite-react-ssg 在构建和客户端启动时已经提供了自己的 HelmetProvider，
+  // 多包一层会导致 <title>/<meta>/<link rel="canonical"> 被渲染进 <body> 而不是 <head>。
   return (
-    <HelmetProvider>
-      <LangProvider>
-        <SeoHead />
-        <JsonLd />
-        <ConfiguratorProvider>
-          <ScrollManager />
+    <LangProvider>
+      <SeoHead />
+      <JsonLd />
+      <ConfiguratorProvider>
+        <ScrollManager />
 
-          {/* 这里的 Outlet 负责渲染所有子页面（Home, Roller 等） */}
-          <Suspense fallback={null}>
-            <Outlet />
-          </Suspense>
+        {/* 这里的 Outlet 负责渲染所有子页面（Home, Roller 等） */}
+        <Suspense fallback={null}>
+          <Outlet />
+        </Suspense>
 
-          {/* ✅ 2. 把全局挂件放在这里！它会伴随整个 App 的生命周期，不会随着页面切换而消失 */}
-          <WhatsAppChatWidget phoneE164="60179778289" />
+        {/* ✅ 2. 把全局挂件放在这里！它会伴随整个 App 的生命周期，不会随着页面切换而消失 */}
+        <WhatsAppChatWidget phoneE164="60179778289" />
 
-        </ConfiguratorProvider>
-      </LangProvider>
-    </HelmetProvider>
+      </ConfiguratorProvider>
+    </LangProvider>
   );
 }

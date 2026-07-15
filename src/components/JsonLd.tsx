@@ -224,12 +224,14 @@ export function JsonLd() {
     breadcrumbItems.push({ "@type": "ListItem", position: 1, name: "Home", item: homeUrl });
 
     if (onBlogIndex || onBlogPost) {
-      const homeUrl = isMalay ? `${SITE_URL}/bidai` : `${SITE_URL}/`;
-      const blogUrl = isMalay ? `${SITE_URL}/bidai/jurnal` : `${SITE_URL}/blog`;
-      const items: Array<{ "@type": string; position: number; name: string; item: string }> = [
-        { "@type": "ListItem", position: 1, name: "Home", item: homeUrl },
-        { "@type": "ListItem", position: 2, name: t.nav.journal, item: blogUrl },
-      ];
+      // 之前这里 push 到一个从未使用的本地 items 数组，导致 Journal 这一层
+      // 从面包屑里消失（文章页出现 position 1 → 3 跳号，属于无效 BreadcrumbList）
+      breadcrumbItems.push({
+        "@type": "ListItem",
+        position: 2,
+        name: t.nav.journal,
+        item: blogUrl,
+      });
       if (onBlogPost) {
         const slug = pathname.split("/").pop() || "";
         breadcrumbItems.push({

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
+import { Head } from "vite-react-ssg";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
@@ -52,6 +53,11 @@ export function BlogPost() {
 
       if (row) {
         setArticleJsonLd(row, pathname, lang);
+        // helmet 在路由切换时不更新 <title>（React 19 兼容问题），手动同步，
+        // 否则从文章 A 跳到文章 B 时标签页还显示 A 的标题
+        if (row.title) document.title = `${row.title} | Kova Sun Shade`;
+        const desc = document.head.querySelector('meta[name="description"]');
+        if (desc && row.excerpt) desc.setAttribute("content", row.excerpt);
       }
     });
 
@@ -65,6 +71,23 @@ export function BlogPost() {
 
   return (
     <div className="min-h-screen bg-[var(--color-cream)]">
+      {/* 文章加载后用文章自己的标题/摘要覆盖 SeoHead 的通用 Journal 标题，
+          否则每篇文章在 Google 里都显示同一个 "KovaSunShade | Journal" */}
+      {post && post !== "missing" && post.title && (
+        <Head>
+          <title>{`${post.title} | Kova Sun Shade`}</title>
+          {post.excerpt && <meta name="description" content={post.excerpt} />}
+          <meta property="og:type" content="article" />
+          <meta property="og:title" content={post.title} />
+          {post.excerpt && <meta property="og:description" content={post.excerpt} />}
+          {post.image && <meta property="og:image" content={post.image} />}
+        </Head>
+      )}
+      {missing && (
+        <Head>
+          <meta name="robots" content="noindex" />
+        </Head>
+      )}
       <Nav />
 
       <main id="main" className="pt-28 pb-24">

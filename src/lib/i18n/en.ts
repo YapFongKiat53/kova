@@ -12,7 +12,7 @@ export const en = {
         title:
           "KovaSunShade | Blinds & Curtain | Window Blind Malaysia",
         description:
-          "Discover custom Roller, Venetian and VertiSheer blinds in Malaysia. Send your window details and get factory-direct options for your home, office or shopshoplotde",
+          "Discover custom Roller, Venetian and VertiSheer blinds in Malaysia. Send your window details and get factory-direct options for your home, office or shoplot.",
         keywords:
           "roller blinds Malaysia, venetian blinds Malaysia, vertisheer, factory direct blinds, motorised blinds, made to measure blinds, Petaling Jaya, Klang Valley, bidai, langsir, bidai tingkap, langsir tingkap, bidai Malaysia, bidai dan langsir rumah anda",
       },

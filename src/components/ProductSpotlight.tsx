@@ -92,20 +92,20 @@ export function ProductSpotlight({
           <div className="lg:col-span-7 -translate-y-1 lg:-translate-y-24">
             {/* 🌟 优化：如果是首屏，标题也使用纯 CSS 动画瞬间显示 */}
             {priority ? (
-              <h2 className={cn("headline fluid-h2 animate-slide-up delay-100", isInk ? "text-[var(--color-cream)]" : "text-[var(--color-ink)]")}>
+              <h1 className={cn("headline fluid-h2 animate-slide-up delay-100", isInk ? "text-[var(--color-cream)]" : "text-[var(--color-ink)]")}>
                 {taglineA}
                 <span className={cn("block italic font-light mt-2", isInk ? "text-[var(--color-clay-light)]" : "text-[var(--color-clay-deep)]")}>
                   {taglineB}
                 </span>
-              </h2>
+              </h1>
             ) : (
               <Reveal>
-                <h2 className={cn("headline fluid-h2", isInk ? "text-[var(--color-cream)]" : "text-[var(--color-ink)]")}>
+                <h1 className={cn("headline fluid-h2", isInk ? "text-[var(--color-cream)]" : "text-[var(--color-ink)]")}>
                   {taglineA}
                   <span className={cn("block italic font-light mt-2", isInk ? "text-[var(--color-clay-light)]" : "text-[var(--color-clay-deep)]")}>
                     {taglineB}
                   </span>
-                </h2>
+                </h1>
               </Reveal>
             )}
           </div>

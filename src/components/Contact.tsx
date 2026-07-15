@@ -130,10 +130,10 @@ export function Contact() {
           {/* HEADING */}
           <div className="lg:col-span-6 lg:row-start-1 lg:col-start-1">
             <p className="eyebrow !text-[var(--color-sand)]">{t.contact.eyebrow}</p>
-            <h2 className="mt-4 font-serif text-[2.2rem] sm:text-[2.6rem] lg:text-[3.2rem] leading-[1.04] tracking-tightest text-[var(--color-cream)]">
+            <h1 className="mt-4 font-serif text-[2.2rem] sm:text-[2.6rem] lg:text-[3.2rem] leading-[1.04] tracking-tightest text-[var(--color-cream)]">
               {t.contact.titleA}{" "}
               <span className="italic font-light text-[var(--color-clay-light)]">{t.contact.titleB}</span>
-            </h2>
+            </h1>
             <p className="mt-5 max-w-md text-[0.98rem] sm:text-[1rem] leading-[1.6] text-[var(--color-cream)]/75">
               {t.contact.intro}
             </p>

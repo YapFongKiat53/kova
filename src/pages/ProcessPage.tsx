@@ -13,7 +13,7 @@ export function ProcessPage() {
       <PromoBar />
       <Nav />
       <main id="main" className="pt-1">
-        <FactoryDirect />
+        <FactoryDirect headingLevel="h1" />
         <Philosophy />
         <div id="process">
           <Process />

@@ -1,6 +1,10 @@
 // src/components/SeoHead.tsx
+import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
+// ⚠️ 必须用 vite-react-ssg 自带的 <Head>，不能直接用 react-helmet-async 的 Helmet。
+// SSG 构建时收集 head 标签用的是它自己内部的 helmet 实例；
+// 直接 import react-helmet-async 会连到另一个实例，标签会被渲染进 <body> 而不是 <head>。
+import { Head } from "vite-react-ssg";
 import { useT } from "@/lib/i18n";
 
 /** Map a pathname to a logical page key for SEO lookup. */
@@ -102,6 +106,10 @@ export function SeoHead() {
   const msHref = `${SITE_ORIGIN}${msPath}`;
   const canonicalHref = `${SITE_ORIGIN}${canonicalPath}`;
 
+  // 社交分享图必须是本站自己的绝对 URL（之前指向 gpt-engineer 的临时存储）
+  const ogImage = `${SITE_ORIGIN}/showcase/hero-living.webp`;
+  const htmlLang = t.meta.htmlLang;
+
   // --- JSON-LD Schema ---
   const jsonLd = {
     "@context": "https://schema.org",
@@ -115,8 +123,34 @@ export function SeoHead() {
     }
   };
 
+  // vite-react-ssg 自带的 helmet (v1) 在 React 19 下切换路由时不会更新 <title>/<meta>/<link>
+  // （htmlAttributes 会更新，标签不会），所以 SPA 内部跳转时手动把关键标签同步到 DOM。
+  // 构建出来的静态 HTML 已经是对的，这段只影响浏览器内的页面切换。
+  useEffect(() => {
+    document.title = title;
+    const setMeta = (selector: string, content: string) => {
+      const el = document.head.querySelector<HTMLMetaElement>(selector);
+      if (el) el.setAttribute("content", content);
+    };
+    const setLink = (selector: string, href: string) => {
+      const el = document.head.querySelector<HTMLLinkElement>(selector);
+      if (el) el.setAttribute("href", href);
+    };
+    setMeta('meta[name="description"]', description);
+    setMeta('meta[property="og:title"]', title);
+    setMeta('meta[property="og:description"]', description);
+    setMeta('meta[property="og:url"]', canonicalHref);
+    setMeta('meta[name="twitter:title"]', title);
+    setMeta('meta[name="twitter:description"]', description);
+    setLink('link[rel="canonical"]', canonicalHref);
+    setLink('link[rel="alternate"][hreflang="en"]', enHref);
+    setLink('link[rel="alternate"][hreflang="ms"]', msHref);
+    setLink('link[rel="alternate"][hreflang="x-default"]', enHref);
+  }, [title, description, canonicalHref, enHref, msHref]);
+
   return (
-    <Helmet>
+    // htmlAttributes 让每个页面输出正确的 <html lang="en|ms">（对 hreflang / 搜索引擎语言识别很重要）
+    <Head htmlAttributes={{ lang: htmlLang }}>
       {/* 1. Standard Meta Tags */}
       <title>{title}</title>
       <meta name="description" content={description} />
@@ -137,12 +171,15 @@ export function SeoHead() {
       <meta property="og:description" content={description} />
       <meta property="og:url" content={canonicalHref} />
       <meta property="og:type" content="website" />
-      <meta property="og:locale" content={t.meta.htmlLang === "ms" ? "ms_MY" : "en_MY"} />
+      <meta property="og:site_name" content="Kova Sun Shade" />
+      <meta property="og:image" content={ogImage} />
+      <meta property="og:locale" content={htmlLang === "ms" ? "ms_MY" : "en_MY"} />
 
       {/* 3. Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={ogImage} />
 
       {/* 4. Canonical + Hreflang */}
       <link rel="canonical" href={canonicalHref} />
@@ -154,6 +191,6 @@ export function SeoHead() {
       <script type="application/ld+json">
         {JSON.stringify(jsonLd)}
       </script>
-    </Helmet>
+    </Head>
   );
 }

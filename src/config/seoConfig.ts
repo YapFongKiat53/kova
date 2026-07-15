@@ -18,7 +18,7 @@ export interface SEOData {
 export const defaultSEO: SEOData = {
   en: {
     title: "KovaSunShade | Blinds & Curtain | Window Blind Malaysia",
-    description: "Discover custom Roller, Venetian and VertiSheer blinds in Malaysia. Send your window details and get factory-direct options for your home, office or shopshoplotde"
+    description: "Discover custom Roller, Venetian and VertiSheer blinds in Malaysia. Send your window details and get factory-direct options for your home, office or shoplot."
   },
   ms: {
     title: "KovaSunShade | Bidai Dan Langsir | Bidai Tingkap Malaysia",

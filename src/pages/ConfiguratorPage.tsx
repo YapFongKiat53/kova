@@ -13,7 +13,7 @@ export function ConfiguratorPage() {
       <PromoBar />
       <Nav />
       <main id="main" className="pt-1">
-        <Configurator />
+        <Configurator headingLevel="h1" />
         <Compare />
         <Fabrics />
         <Spaces />

@@ -17,7 +17,8 @@ import { useNavigate } from "react-router-dom";
 import { useRoutes } from "@/lib/routes";
 const PRODUCT_IDS: ProductId[] = ["roller", "venetian", "vertisheer"];
 
-export function Configurator() {
+// headingLevel: 在 /configurator 页面它是页面主标题 (h1)，其他页面维持 h2
+export function Configurator({ headingLevel: H = "h2" }: { headingLevel?: "h1" | "h2" } = {}) {
   const t = useT();
   const { configuration, setProduct, setFabric, submit } = useConfigurator();
   const { product, fabric, opacity } = configuration;
@@ -84,10 +85,10 @@ export function Configurator() {
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-3 lg:gap-5 mb-[clamp(1rem,0.5rem+1.5vw,2.5rem)]">
             <div>
               <p className="eyebrow">{t.configurator.eyebrow}</p>
-              <h2 className="mt-1.5 lg:mt-3 headline fluid-h3 text-[var(--color-ink)] max-w-2xl">
+              <H className="mt-1.5 lg:mt-3 headline fluid-h3 text-[var(--color-ink)] max-w-2xl">
                 {t.configurator.titleA}
                 <span className="italic font-light text-[var(--color-clay-deep)]"> {t.configurator.titleB}</span>
-              </h2>
+              </H>
             </div>
             <p className="hidden sm:block max-w-md fluid-body text-[var(--color-ink-soft)]">
               {t.configurator.intro}
