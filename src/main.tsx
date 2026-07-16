@@ -1,11 +1,27 @@
 // src/main.tsx
-import { lazy } from 'react'; 
+import { lazy } from 'react';
 import { ViteReactSSG } from 'vite-react-ssg';
+import type { LoaderFunctionArgs } from 'react-router-dom';
 import App from './App';
 // 首页 (Home) 作为首屏门面，必须保持直接引入！
-import { Home } from './pages/Home'; 
+import { Home } from './pages/Home';
 import './index.css';
-import { Component as LayoutComponent } from "./Layout";
+import { getPost, listPostPaths } from './lib/blog';
+
+// --- 博客文章预渲染（SSG）---
+// loader 在构建期抓取文章内容，让每篇文章的 HTML 直接包含正文（Google 无需跑 JS 就能读到）。
+// 构建之后才发布的新文章：loader 在浏览器里返回 null，BlogPost 组件会退回客户端抓取（和以前一样）。
+const blogPostLoader = (lang: 'en' | 'ms') =>
+  async ({ params }: LoaderFunctionArgs) => {
+    if (!params.slug) return null;
+    return await getPost(params.slug, lang);
+  };
+
+// getStaticPaths 告诉 vite-react-ssg 要为哪些 slug 生成静态页面
+const blogStaticPaths = (lang: 'en' | 'ms', prefix: string) => async () => {
+  const rows = await listPostPaths();
+  return rows.filter((r) => r.lang === lang).map((r) => `${prefix}/${r.slug}`);
+};
 
 
 // 将所有非首屏组件改为懒加载
@@ -35,7 +51,12 @@ const routes = [
       { path: 'configurator', element: <ConfiguratorPage /> },
       { path: 'contact', element: <ContactPage /> },
       { path: 'blog', element: <Blog /> },
-      { path: 'blog/:slug', element: <BlogPost /> },
+      {
+        path: 'blog/:slug',
+        element: <BlogPost />,
+        loader: blogPostLoader('en'),
+        getStaticPaths: blogStaticPaths('en', '/blog'),
+      },
       
       // Bahasa Malaysia (BM) Routes
       { path: 'bidai', element: <Home /> },
@@ -46,7 +67,12 @@ const routes = [
       { path: 'bidai/reka', element: <ConfiguratorPage /> },
       { path: 'bidai/hubungi', element: <ContactPage /> },
       { path: 'bidai/jurnal', element: <Blog /> },
-      { path: 'bidai/jurnal/:slug', element: <BlogPost /> },
+      {
+        path: 'bidai/jurnal/:slug',
+        element: <BlogPost />,
+        loader: blogPostLoader('ms'),
+        getStaticPaths: blogStaticPaths('ms', '/bidai/jurnal'),
+      },
       
       // 2. 核心修改：当以上路由全都匹配不到时，渲染 NotFound 组件而不再是 Home
       { path: '*', element: <NotFound /> } 

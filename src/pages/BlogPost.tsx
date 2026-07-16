@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLoaderData, useLocation, useParams } from "react-router-dom";
 import { Head } from "vite-react-ssg";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
@@ -24,18 +24,33 @@ export function BlogPost() {
 
   // Back link returns to the index in the matching language.
   const blogIndex = pathname.startsWith("/bidai") ? "/bidai/jurnal" : "/blog";
-  const [post, setPost] = useState<BlogPost | null | "missing">(null);
 
-  // 【核心修复 3】：添加 isMounted 状态，彻底解决 Hydration Error 418 (UI 不匹配问题)
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  // 构建期由 route loader 抓好的文章（预渲染 HTML 直接包含正文）。
+  // 构建之后才发布的新文章 loader 返回 null，下面的 useEffect 会退回客户端抓取。
+  const loaderPost = (useLoaderData() ?? null) as BlogPost | null;
+  const [post, setPost] = useState<BlogPost | null | "missing">(
+    loaderPost && loaderPost.slug === slug ? loaderPost : null,
+  );
 
   useEffect(() => {
     if (!slug) {
       setPost("missing");
+      return;
+    }
+
+    // helmet 在路由切换时不更新 <title>（React 19 兼容问题），手动同步，
+    // 否则从文章 A 跳到文章 B 时标签页还显示 A 的标题
+    const syncMeta = (row: BlogPost) => {
+      setArticleJsonLd(row, pathname, lang);
+      if (row.title) document.title = `${row.title} | Kova Sun Shade`;
+      const desc = document.head.querySelector('meta[name="description"]');
+      if (desc && row.excerpt) desc.setAttribute("content", row.excerpt);
+    };
+
+    // 已有预渲染数据 → 不用再请求 Supabase
+    if (loaderPost && loaderPost.slug === slug) {
+      setPost(loaderPost);
+      syncMeta(loaderPost);
       return;
     }
 
@@ -51,20 +66,13 @@ export function BlogPost() {
 
       setPost(row ?? "missing");
 
-      if (row) {
-        setArticleJsonLd(row, pathname, lang);
-        // helmet 在路由切换时不更新 <title>（React 19 兼容问题），手动同步，
-        // 否则从文章 A 跳到文章 B 时标签页还显示 A 的标题
-        if (row.title) document.title = `${row.title} | Kova Sun Shade`;
-        const desc = document.head.querySelector('meta[name="description"]');
-        if (desc && row.excerpt) desc.setAttribute("content", row.excerpt);
-      }
+      if (row) syncMeta(row);
     });
 
     return () => {
       cancelled = true;
     };
-  }, [slug, pathname, lang]);
+  }, [slug, pathname, lang, loaderPost]);
 
   const loading = post === null;
   const missing = post === "missing";
@@ -91,9 +99,9 @@ export function BlogPost() {
       <Nav />
 
       <main id="main" className="pt-28 pb-24">
-        {/* 只有在客户端组件挂载完成后，才渲染可能产生时区/语言分歧的内容，完美避开 418 报错 */}
-        {isMounted && (
-          <div className="max-w-[760px] mx-auto px-5 sm:px-6 lg:px-10">
+        {/* 文章正文现在会在构建期预渲染进 HTML（对 SEO 很关键）。
+            日期格式已改为确定性输出（blog.ts），不会再触发 418 hydration 错误 */}
+        <div className="max-w-[760px] mx-auto px-5 sm:px-6 lg:px-10">
             <Link
               to={blogIndex}
               className="inline-flex items-center gap-1.5 text-[0.78rem] tracking-widest uppercase text-[var(--color-muted)] hover:text-[var(--color-ink)] transition-colors"
@@ -155,7 +163,6 @@ export function BlogPost() {
               </article>
             )}
           </div>
-        )}
       </main>
 
       <Footer />

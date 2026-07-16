@@ -45,7 +45,10 @@ const PAGE_KEY_FALLBACK = {
 
 export function SeoHead() {
   const t = useT();
-  const { pathname } = useLocation();
+  const { pathname: rawPathname } = useLocation();
+  // 线上主机会把 /roller 301 到 /roller/（尾部斜杠）。必须先把斜杠去掉再查表，
+  // 否则 "/roller/" 匹配不到任何页面 → 整页 SEO 会错误地退回首页的标题和描述
+  const pathname = rawPathname.length > 1 ? rawPathname.replace(/\/+$/, "") : rawPathname;
 
   const pageKey = pathnameToPageKey(pathname);
   const pageSeo = t.seo.pages[pageKey];

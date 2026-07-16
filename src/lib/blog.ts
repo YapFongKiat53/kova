@@ -93,16 +93,39 @@ export async function getPost(slug: string, lang: string = "en"): Promise<BlogPo
   return (data ?? null) as BlogPost | null;
 }
 
-/** 格式化日期显示 ("12 March 2025") */
+/**
+ * 构建期（SSG）用：列出所有文章的 slug + lang，
+ * 给 vite-react-ssg 的 getStaticPaths 和 sitemap 预渲染每篇文章。
+ * 两条路由（/blog/:slug 和 /bidai/jurnal/:slug）都会调用，所以缓存一次请求。
+ */
+let slugCache: Promise<Array<{ slug: string; lang: string }>> | null = null;
+export function listPostPaths(): Promise<Array<{ slug: string; lang: string }>> {
+  if (slugCache) return slugCache;
+  slugCache = (async () => {
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from("KovaTable")
+      .select("slug, lang")
+      .not("slug", "is", null);
+    if (error) {
+      console.warn("[blog] listPostPaths 失败:", error.message);
+      return [];
+    }
+    return (data ?? []).filter((r) => r.slug) as Array<{ slug: string; lang: string }>;
+  })();
+  return slugCache;
+}
+
+// 月份写死而不用 toLocaleDateString：文章现在会在构建期预渲染，
+// 构建机器和访客浏览器的时区/ICU 不同会导致日期字符串不一致 → hydration 报错。
+const MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const MONTHS_MS = ["Januari", "Februari", "Mac", "April", "Mei", "Jun", "Julai", "Ogos", "September", "Oktober", "November", "Disember"];
+
+/** 格式化日期显示 ("12 March 2025") — 在服务器和浏览器输出完全一致 */
 export function formatPostDate(iso: string | undefined | null, locale = "en-MY"): string {
   if (!iso) return "";
-  try {
-    return new Date(iso).toLocaleDateString(locale, {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-  } catch {
-    return "";
-  }
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const months = locale.startsWith("ms") ? MONTHS_MS : MONTHS_EN;
+  return `${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 }

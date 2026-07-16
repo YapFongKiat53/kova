@@ -44,7 +44,9 @@ function clearJsonLd(id: string) {
 
 export function JsonLd() {
   const t = useT();
-  const { pathname } = useLocation();
+  const { pathname: rawPathname } = useLocation();
+  // 与 SeoHead 一致：去掉尾部斜杠再做路由匹配（线上主机会 301 到带斜杠的 URL）
+  const pathname = rawPathname.length > 1 ? rawPathname.replace(/\/+$/, "") : rawPathname;
   const lang = t.meta.htmlLang;
   const isMalay = lang === "ms";
 

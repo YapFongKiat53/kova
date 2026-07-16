@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useT } from "@/lib/i18n";
 import { LanguageToggle } from "./LanguageToggle";
+import kovaLogo from "@/images/Kovera Logo.webp";
 // 移除了 useRoutes，因为我们直接用当前 URL 判断更精准
 
 export function Nav() {
@@ -86,22 +87,12 @@ export function Nav() {
           onClick={() => setMobileOpen(false)}
           className="flex items-center gap-2.5 group shrink-0"
         >
-          <span className="inline-block h-7 w-7">
-            <svg viewBox="0 0 32 32" className="h-full w-full">
-              <rect
-                x="6"
-                y="5"
-                width="20"
-                height="22"
-                rx="1"
-                fill="none"
-                stroke="#1A1714"
-                strokeWidth="1.5"
-              />
-              <line x1="6" y1="11" x2="26" y2="11" stroke="#8B5A3C" strokeWidth="1.4" />
-              <line x1="6" y1="16" x2="26" y2="16" stroke="#8B5A3C" strokeWidth="1.4" />
-              <line x1="6" y1="21" x2="26" y2="21" stroke="#8B5A3C" strokeWidth="1.4" />
-            </svg>
+          <span className="inline-block h-10 w-10 md:h-10 md:w-10 mt-[-4px]">
+            <img
+              src={kovaLogo}
+              alt="Kova Logo"
+              className="h-full w-full object-contain"
+            />
           </span>
           <span className="font-serif text-[1.05rem] tracking-tight text-[var(--color-ink)]">
             Kova<span className="text-[var(--color-clay)]">·</span>Sun Shade
