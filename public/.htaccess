@@ -1,0 +1,28 @@
+# Kova Sun Shade — Apache rules for correct Google crawling
+#
+# Fixes three problems found on the live server:
+#   1. www.kovasunshade.com served the site at 200 (duplicate content)
+#   2. every page URL 301-redirected to a trailing-slash version
+#      (/roller -> /roller/), while the sitemap, canonical and hreflang
+#      tags all use the no-slash form
+#   3. unknown URLs returned 200 (soft 404) instead of a real 404
+
+Options -Indexes -MultiViews
+DirectorySlash Off
+RewriteEngine On
+
+# --- One canonical host: https:// without www ---
+RewriteCond %{HTTPS} off [OR]
+RewriteCond %{HTTP_HOST} ^www\. [NC]
+RewriteRule ^ https://kovasunshade.com%{REQUEST_URI} [R=301,L]
+
+# --- /page/ -> /page (matches the URLs in sitemap.xml and canonical tags) ---
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^(.+)/$ /$1 [R=301,L]
+
+# --- Serve the pre-rendered page for /page without any redirect ---
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^(.+[^/])$ /$1/index.html [L]
+
+# --- Unknown URLs: real 404 status; the app shell renders the NotFound page ---
+ErrorDocument 404 /index.html
