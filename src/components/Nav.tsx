@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useT } from "@/lib/i18n";
 import { LanguageToggle } from "./LanguageToggle";
-import kovaLogo from "@/images/Kovera Logo.webp";
+import kovaLogo from "@/images/KoveraLogo.png";
 // 移除了 useRoutes，因为我们直接用当前 URL 判断更精准
 
 export function Nav() {

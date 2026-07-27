@@ -183,6 +183,7 @@ export function JsonLd() {
           "@type": "Offer",
           availability: "https://schema.org/InStock",
           priceCurrency: "MYR",
+          "price": "0.00",
           url: `${SITE_URL}${isMalay ? "/bidai/hubungi" : "/contact"}`,
           seller: { "@id": `${SITE_URL}/#business` },
         },
