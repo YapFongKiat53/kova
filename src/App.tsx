@@ -4,6 +4,7 @@ import { Outlet } from "react-router-dom";
 import { LangProvider } from "@/lib/i18n";
 import { ConfiguratorProvider } from "@/lib/configurator/context";
 import { ScrollManager } from "./components/ScrollManager";
+import { AnalyticsTracker } from "./components/AnalyticsTracker";
 import { SeoHead } from "./components/SeoHead";
 import { JsonLd } from "./components/JsonLd";
 
@@ -20,6 +21,7 @@ export default function App() {
       <JsonLd />
       <ConfiguratorProvider>
         <ScrollManager />
+        <AnalyticsTracker />
 
         {/* 这里的 Outlet 负责渲染所有子页面（Home, Roller 等） */}
         <Suspense fallback={null}>
